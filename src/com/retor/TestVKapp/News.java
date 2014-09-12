@@ -1,6 +1,8 @@
 package com.retor.TestVKapp;
 
 import android.graphics.Bitmap;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by retor on 11.09.2014.
@@ -12,6 +14,18 @@ public class News {
     int comments;
     int likes;
     Bitmap postPic;
+
+    public News(JSONObject o) {
+        try {
+            this.postName = o.optString("type");
+            this.postText = o.getString("text");
+            this.author = o.getString("name");
+            this.comments = o.getInt("count");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public String getPostName() {
         return postName;

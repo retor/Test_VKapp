@@ -3,6 +3,8 @@ package com.retor.TestVKapp;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import com.retor.TestVKapp.help.Cons;
 import com.retor.TestVKapp.help.PrefWork;
@@ -13,7 +15,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by retor on 11.09.2014.
@@ -32,12 +36,15 @@ public class NewsList extends Activity {
         String token = prefWork.loadToken();
         long id = prefWork.loadUserId();
         tv.setText(token + " " + id);
+        Button refresh = (Button)findViewById(R.id.refresh);
+
+
         url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&count=1" + "&v=" + Cons.API_V + "&access_token=" + token;
-        Thread thread = new Thread(new Runnable() {
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    sendRequestInternal(url);
+                    parseJson(sendRequestInternal(url));
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
@@ -46,15 +53,25 @@ public class NewsList extends Activity {
             }
         });
         thread.start();
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                thread.run();
+            }
+        });
     }
 
     private JSONObject sendRequestInternal(String url) throws IOException {
         JSONObject object = null;
         URL url2 = new URL(url);
         BufferedReader reader = new BufferedReader(new InputStreamReader(url2.openStream()));
-        Log.d("READER", reader.readLine());
+        StringWriter sw = new StringWriter();
+        sw.write(reader.readLine());
+        Log.d("READER", sw.toString());
         try {
-            object = new JSONObject(reader.readLine().toString());
+            String response = sw.toString();
+            object = new JSONObject(response);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -62,15 +79,20 @@ public class NewsList extends Activity {
         return object;
     }
 
-    public void parseJson(JSONObject o) throws JSONException {
-        JSONArray news = new JSONArray(o);
-        for (int i = 0; i < news.length(); ++i) {
-            JSONObject rec = news.getJSONObject(i);
-            JSONObject jsonPage = rec.getJSONObject("page");
-            String address = jsonPage.getString("url");
-            String name = jsonPage.getString("name");
-            String status = jsonPage.getString("status");
+    public ArrayList<News> parseJson(JSONObject o) throws JSONException {
+        ArrayList<News> newsArray = new ArrayList<News>();
+        JSONObject response = o.optJSONObject("response");
+        JSONArray array = response.optJSONArray("items");
+        for (int i = 0; i < array.length(); ++i) {
+            newsArray.add(new News((JSONObject)array.get(i)));
+            //JSONObject rec = news.getJSONObject(i);
+//            JSONObject jsonPage = rec.getJSONObject("page");
+//            String address = jsonPage.getString("url");
+//            String name = jsonPage.getString("name");
+//            String status = jsonPage.getString("status");
+            Log.d("Parsed",newsArray.get(i).getPostText());
         }
+        return newsArray;
     }
             /*
             HttpURLConnection connection=null;
