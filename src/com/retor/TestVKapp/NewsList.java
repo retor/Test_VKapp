@@ -1,12 +1,13 @@
 package com.retor.TestVKapp;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import com.retor.TestVKapp.help.Cons;
+import com.retor.TestVKapp.help.ListAdapter;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by retor on 11.09.2014.
@@ -26,117 +28,92 @@ public class NewsList extends Activity {
 
     private String TAG = "Request";
     String url;
+    TextView tv;
+    ListView lv;
+    List<News> newski;
+    ListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
-        TextView tv = (TextView) findViewById(R.id.textView);
         PrefWork prefWork = new PrefWork(getApplicationContext());
         String token = prefWork.loadToken();
         long id = prefWork.loadUserId();
-        tv.setText(token + " " + id);
-        Button refresh = (Button)findViewById(R.id.refresh);
+        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
+        tv = (TextView) findViewById(R.id.textView);
+        lv = (ListView) findViewById(R.id.listView);
+        newski = new ArrayList<News>();
+        asyncTask.execute();
 
-
-        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&count=1" + "&v=" + Cons.API_V + "&access_token=" + token;
-        final Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    parseJson(sendRequestInternal(url));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-        refresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                thread.run();
-            }
-        });
+        //adapter = new ListAdapter(getApplicationContext(), R.layout.list_item, newski);
     }
 
-    private JSONObject sendRequestInternal(String url) throws IOException {
+    private JSONObject sendRequest(String url) throws IOException {
         JSONObject object = null;
         URL url2 = new URL(url);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url2.openStream()));
-        StringWriter sw = new StringWriter();
-        sw.write(reader.readLine());
-        Log.d("READER", sw.toString());
-        try {
-            String response = sw.toString();
-            object = new JSONObject(response);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        BufferedReader reader = null;
+        Log.d("READER", url);
+        try{
+            reader = new BufferedReader(new InputStreamReader(url2.openConnection().getInputStream()));
+            StringWriter sw = new StringWriter();
+            sw.write(reader.readLine());
+            Log.d("READER", sw.toString());
+            try {
+                object = new JSONObject(sw.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        finally{
+            if(reader!=null)
+                reader.close();
         }
         Log.d("JSON", object.toString());
         return object;
     }
 
-    public ArrayList<News> parseJson(JSONObject o) throws JSONException {
-        ArrayList<News> newsArray = new ArrayList<News>();
-        JSONObject response = o.optJSONObject("response");
-        JSONArray array = response.optJSONArray("items");
-        for (int i = 0; i < array.length(); ++i) {
-            newsArray.add(new News((JSONObject)array.get(i)));
-            //JSONObject rec = news.getJSONObject(i);
-//            JSONObject jsonPage = rec.getJSONObject("page");
-//            String address = jsonPage.getString("url");
-//            String name = jsonPage.getString("name");
-//            String status = jsonPage.getString("status");
-            Log.d("Parsed",newsArray.get(i).getPostText());
-        }
-        return newsArray;
-    }
-            /*
-            HttpURLConnection connection=null;
-           connection = (HttpURLConnection)new URL(url).openConnection();
-           connection.setConnectTimeout(30000);
-           connection.setReadTimeout(30000);
-           connection.setUseCaches(false);
-           connection.setDoOutput(is_post);
-           connection.setDoInput(true);
-           connection.setRequestMethod(is_post?"POST":"GET");
-*//*           if(is_post)
-               connection.getOutputStream().write(body.getBytes("UTF-8"));*//*
-//           int code=connection.getResponseCode();
-           //Log.i(TAG, "code=" + code);
-           //It may happen due to keep-alive problem http://stackoverflow.com/questions/1440957/httpurlconnection-getresponsecode-returns-1-on-second-invocation
-
-            InputStream is = new BufferedInputStream(connection.getInputStream(), 8192);
-*//*           String enc=connection.getHeaderField("Content-Encoding");
-           if(enc!=null && enc.equalsIgnoreCase("gzip"))
-              is = new GZIPInputStream(is);*//*
-            InputStreamReader r = new InputStreamReader(is);
-            StringWriter sw = new StringWriter();
-                     char[] buffer = new char[1024];
-                     try {
-                             for (int n; (n = r.read(buffer)) != -1;)
-                                     sw.write(buffer, 0, n);
-                         }catch (IOException e1) {
-                              e1.printStackTrace();
-                         }
-            String response=sw.toString();
-            Log.d(TAG, response);
+    public ArrayList<News> getNewsArray(JSONObject object) throws JSONException {
+        ArrayList<News> out = new ArrayList<News>();
+        JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
+        for (int i = 0; i < jsonArray.length(); ++i){
+            News news = new News();
             try {
-                JSONObject object = new JSONObject(response);
-                Log.d("JSON", object.toString());
+                news  = News.parse((JSONObject)jsonArray.get(i));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return response;
+            out.add(news);
         }
-            finally{
-               if(connection!=null)
-            connection.disconnect();
-            }*/
-//    }
+        Log.d("Item text", out.get(0).text);
+        return out;
+    }
 
+    AsyncTask<Void, Void , Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                newski = getNewsArray(sendRequest(url));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
+            lv.setAdapter(adapter);
+            super.onPostExecute(aVoid);
+        }
+    };
 }

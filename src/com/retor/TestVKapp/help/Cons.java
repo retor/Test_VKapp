@@ -14,4 +14,5 @@ public class Cons implements Serializable{
     static public String TOKEN_PREF = "token";
     static public String USERID_PREF = "userid";
     static public String PREF_NAME = "prefapp";
+    //static public String NEWS_URL = "https://api.vk.com/method/newsfeed.get?user_id=" + id +  "&filters=post" +  "&count=2" + "&v=" + Cons.API_V + "&access_token=" + token;
 }

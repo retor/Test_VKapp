@@ -30,4 +30,8 @@ public class PrefWork {
         out = preferences.getLong(Cons.USERID_PREF, 0);
         return out;
     }
+    public void clearPref(){
+        SharedPreferences preferences = context.getSharedPreferences(Cons.PREF_NAME, Context.MODE_MULTI_PROCESS);
+        preferences.edit().clear().commit();
+    }
 }

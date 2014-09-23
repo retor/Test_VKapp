@@ -17,10 +17,14 @@ public class AuthWeb extends Activity {
 
     WebView wv;
     static String TAG = "WebAuth";
+    PrefWork prefWork;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authweb);
+        prefWork = new PrefWork(this);
+        prefWork.clearPref();
         /*if (getSharedPreferences(Cons.PREF_NAME, MODE_MULTI_PROCESS).getString(Cons.TOKEN_PREF, null)!=null){
             Intent intent = new Intent(this, NewsList.class);
             startActivity(intent);
@@ -34,7 +38,6 @@ public class AuthWeb extends Activity {
     }
 
     class AuthWebClient extends WebViewClient {
-
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
@@ -54,7 +57,7 @@ public class AuthWeb extends Activity {
                     Intent intent=new Intent();
                     intent.putExtra("token", auth[0]);
                     intent.putExtra("user_id", Long.parseLong(auth[1]));
-                    PrefWork prefWork = new PrefWork(this);
+                    /*PrefWork prefWork = new PrefWork(this);*/
                     prefWork.savePref(Cons.PREF_NAME, auth[0], Long.parseLong(auth[1]));
                     Log.d("PrefSave", auth[0]+" "+auth[1]);
                     setResult(Activity.RESULT_OK, intent);
