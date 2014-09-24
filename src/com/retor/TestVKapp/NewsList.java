@@ -40,7 +40,7 @@ public class NewsList extends Activity {
         PrefWork prefWork = new PrefWork(getApplicationContext());
         String token = prefWork.loadToken();
         long id = prefWork.loadUserId();
-        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
+        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=10" + "&v=" + Cons.API_V + "&access_token=" + token;
         tv = (TextView) findViewById(R.id.textView);
         lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();

@@ -1,5 +1,7 @@
 package com.retor.TestVKapp;
 
+import android.util.Log;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +21,15 @@ public class News {
     int likes_count;
     int copy_owner_id;
     String copy_text;
+    String pic;
+
+    public String getPic() {
+        return pic;
+    }
+
+    public void setPic(String pic) {
+        this.pic = pic;
+    }
 
     ArrayList<Profile> profiles;
     ArrayList<Group> groups;
@@ -36,14 +47,34 @@ public class News {
             out.text = object.getString("text");
             out.comments_count = object.getJSONObject("comments").getInt("count");
             out.likes_count = object.getJSONObject("likes").getInt("count");
-            if (object.has("copy_history")){
-                //out.copy_owner_id = object.getJSONArray("copy_history");
-                out.text = object.getJSONArray("copy_history").get(6).toString();// getJSONObject("copy_history").getString("text");
-            }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        JSONArray copy_history_json=object.optJSONArray("copy_history");
+            if(copy_history_json!=null) {
+                Log.i("NewsItem", copy_history_json.toString());
+                for (int i = 0; i < copy_history_json.length(); ++i) {
+                    try {
+                        out.date = copy_history_json.getJSONObject(i).getLong("date");
+                        out.text = copy_history_json.getJSONObject(i).getString("text");
+                    } catch (Throwable th) {
+                        th.printStackTrace();
+                    }
+                }
+            }
+        JSONArray attach_json=object.optJSONArray("attachments");
+        if(attach_json!=null) {
+            for (int i = 0; i < attach_json.length(); ++i) {
+                try {
+                    if (attach_json.getJSONObject(i).getString("type")=="photo")
+                    out.pic = attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75");
+                    Log.d("Object picture", attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75").toString());
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            }
+        }
+
         return out;
     }
 
