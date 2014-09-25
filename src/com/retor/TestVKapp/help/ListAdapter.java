@@ -1,7 +1,6 @@
 package com.retor.TestVKapp.help;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,6 @@ import android.widget.TextView;
 import com.retor.TestVKapp.News;
 import com.retor.TestVKapp.R;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,16 +63,12 @@ public class ListAdapter extends BaseAdapter {
         holder.author = (TextView)out.findViewById(R.id.item_author);
         holder.date = (TextView)out.findViewById(R.id.item_date);
         holder.picture = (ImageView)out.findViewById(R.id.item_image);
-        Drawable pic = null;
-        try {
-            pic = Drawable.createFromStream((InputStream)new URL(getItem(position).getPic()).getContent(), "321");// BitmapFactory.decodeStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
         holder.text.setText(getItem(position).getText());
         holder.author.setText(String.valueOf(getItem(position).getPost_id()));
         holder.date.setText(String.valueOf(getItem(position).getDate()));
-        holder.picture.setImageDrawable(pic);
+        holder.picture.setImageDrawable(getItem(position).getPicture());
         return out;
     }
 
@@ -86,4 +78,5 @@ public class ListAdapter extends BaseAdapter {
         TextView date;
         ImageView picture;
     }
+
 }
