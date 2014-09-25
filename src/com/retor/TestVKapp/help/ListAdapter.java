@@ -65,15 +65,19 @@ public class ListAdapter extends BaseAdapter {
         holder.date = (TextView)out.findViewById(R.id.item_date);
         holder.picture = (ImageView)out.findViewById(R.id.item_image);
         holder.text.setMaxLines(2);
+        holder.comment_pic = (ImageView)out.findViewById(R.id.image_comment);
+        holder.like_pic = (ImageView)out.findViewById(R.id.image_like);
         holder.likes = (TextView)out.findViewById(R.id.text_likes);
         holder.comments = (TextView)out.findViewById(R.id.text_comments);
         //fill holder views
+        holder.like_pic.setImageDrawable(context.getResources().getDrawable(R.drawable.like));
+        holder.comment_pic.setImageDrawable(context.getResources().getDrawable(R.drawable.comment));
         holder.text.setText(getItem(position).getText());
         holder.author.setText(String.valueOf(getItem(position).getPost_id()));
         holder.date.setText(String.valueOf(getItem(position).getDate()));
         holder.picture.setImageDrawable(getItem(position).getPicture());
-        holder.comments.setText(getItem(position).getComments_count());
-        holder.likes.setText(getItem(position).getLikes_count());
+        holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
+        holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));
         return out;
     }
 
@@ -82,6 +86,8 @@ public class ListAdapter extends BaseAdapter {
         TextView author;
         TextView date;
         ImageView picture;
+        ImageView like_pic;
+        ImageView comment_pic;
         TextView likes;
         TextView comments;
     }

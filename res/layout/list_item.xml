@@ -47,7 +47,6 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:id="@+id/image_like"
-            android:src="@android:drawable/btn_star_big_on"
             android:layout_below="@+id/item_author"
             android:layout_alignParentStart="true"/>
 
@@ -66,7 +65,7 @@
             android:id="@+id/image_comment"
             android:layout_below="@+id/item_date"
             android:layout_alignEnd="@+id/item_date"
-            android:src="@android:drawable/stat_notify_chat"/>
+            />
 
     <TextView
             android:layout_width="wrap_content"
