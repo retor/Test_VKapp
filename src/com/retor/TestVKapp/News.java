@@ -6,9 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -25,19 +22,18 @@ public class News {
     int likes_count;
     int copy_owner_id;
     String copy_text;
-    static String pic;
-    static Drawable picture;
+    String pic;
+    Drawable picture;
 
     public Drawable getPicture() {
-
         return picture;
     }
 
-    public static void setPicture(Drawable picture) {
-        News.picture = picture;
+    public void setPicture(Drawable picture) {
+        this.picture = picture;
     }
 
-    public static String getPic() {
+    public String getPic() {
         return pic;
     }
 
@@ -82,9 +78,7 @@ public class News {
                 try {
                     //if (attach_json.getJSONObject(i).getString("type").equalsIgnoreCase("photo"))
                     out.pic = attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75");
-                    loadpic.run();
                     Log.d("Object picture", attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75").toString());
-                    loadpic.interrupt();
                 } catch (Throwable th) {
                     th.printStackTrace();
                 }
@@ -93,17 +87,6 @@ public class News {
 
         return out;
     }
-
-    public static Thread loadpic = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                picture = Drawable.createFromStream((InputStream)new URL(getPic()).getContent(), "321");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    });
 
     public String getType() {
         return type;

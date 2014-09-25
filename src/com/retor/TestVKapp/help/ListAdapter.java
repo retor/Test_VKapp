@@ -50,7 +50,7 @@ public class ListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View out;
         ViewHolder holder;
         if (convertView!=null){
@@ -59,16 +59,21 @@ public class ListAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         out = inflater.inflate(res, parent, false);
         holder = new ViewHolder();
+        //set holder views
         holder.text = (TextView)out.findViewById(R.id.item_text);
         holder.author = (TextView)out.findViewById(R.id.item_author);
         holder.date = (TextView)out.findViewById(R.id.item_date);
         holder.picture = (ImageView)out.findViewById(R.id.item_image);
-
-
+        holder.text.setMaxLines(2);
+        holder.likes = (TextView)out.findViewById(R.id.text_likes);
+        holder.comments = (TextView)out.findViewById(R.id.text_comments);
+        //fill holder views
         holder.text.setText(getItem(position).getText());
         holder.author.setText(String.valueOf(getItem(position).getPost_id()));
         holder.date.setText(String.valueOf(getItem(position).getDate()));
         holder.picture.setImageDrawable(getItem(position).getPicture());
+        holder.comments.setText(getItem(position).getComments_count());
+        holder.likes.setText(getItem(position).getLikes_count());
         return out;
     }
 
@@ -77,6 +82,7 @@ public class ListAdapter extends BaseAdapter {
         TextView author;
         TextView date;
         ImageView picture;
+        TextView likes;
+        TextView comments;
     }
-
 }

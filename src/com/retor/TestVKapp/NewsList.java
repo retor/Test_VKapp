@@ -1,6 +1,7 @@
 package com.retor.TestVKapp;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,10 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +78,11 @@ public class NewsList extends Activity {
             News news = new News();
             try {
                 news  = News.parse((JSONObject)jsonArray.get(i));
+                try {
+                    news.setPicture(Drawable.createFromStream((InputStream) new URL(news.getPic()).getContent(), "321"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

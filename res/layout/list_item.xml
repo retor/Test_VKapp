@@ -43,4 +43,38 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"/>
 
+    <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/image_like"
+            android:src="@android:drawable/btn_star_big_on"
+            android:layout_below="@+id/item_author"
+            android:layout_alignParentStart="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/text_likes"
+            android:layout_alignBottom="@+id/image_like"
+            android:layout_toRightOf="@+id/image_like"/>
+
+    <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/image_comment"
+            android:layout_below="@+id/item_date"
+            android:layout_alignEnd="@+id/item_date"
+            android:src="@android:drawable/stat_notify_chat"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/text_comments"
+            android:layout_below="@+id/item_date"
+            android:layout_toLeftOf="@+id/image_comment"/>
+
 </RelativeLayout>
