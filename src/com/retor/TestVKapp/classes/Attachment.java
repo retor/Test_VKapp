@@ -8,8 +8,10 @@ import org.json.JSONObject;
  * Created by Антон on 26.09.2014.
  */
 public class Attachment {
-    String type;
+    public String type;
     public Album album;
+    public Photo photo;
+    public Link link;
 
     public Attachment(){}
 
@@ -19,7 +21,16 @@ public class Attachment {
             try {
                 JSONObject att = (JSONObject) array.get(i);
                 if (att.getString("type").equals("album")){
+                    out.type = att.getString("type");
                     out.album = Album.parse(((JSONObject) array.get(i)).getJSONObject("album"));
+                }
+                if (att.getString("type").equals("photo")){
+                    out.type = att.getString("type");
+                    out.photo = Photo.parse(((JSONObject) array.get(i)).getJSONObject("photo"));
+                }
+                if (att.getString("type").equals("link")){
+                    out.type = att.getString("type");
+                    out.link = Link.parse(((JSONObject) array.get(i)).getJSONObject("link"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

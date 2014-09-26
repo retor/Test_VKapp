@@ -53,7 +53,7 @@ public class Album {
         public String photo_75;
         public String photo_130;
         public String photo_604;
-        public String photo_801;
+        public String photo_807;
         public String photo_1280;
         public long date;
         public String access_key;
@@ -70,36 +70,14 @@ public class Album {
                 out_thumb.photo_75 = o.getString("photo_75");
                 out_thumb.photo_130 = o.getString("photo_130");
                 out_thumb.photo_604 = o.getString("photo_604");
-                out_thumb.photo_801 = o.getString("photo_801");
+                out_thumb.photo_807 = o.getString("photo_807");
                 out_thumb.photo_1280 = o.getString("photo_1280");
                 out_thumb.date = o.getLong("date");
-                out_thumb.access_key = o.getString("access_key");
+                out_thumb.access_key = o.optString("access_key");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             return out_thumb;
-        }
-    }
-
-    public  static class Link{
-        public String url;
-        public String title;
-        public String description;
-        public String img_src;
-
-        public Link(){}
-
-        public static Link parse(JSONObject o){
-            Link out_link = new Link();
-            try {
-                out_link.url = o.getString("url");
-                out_link.title = o.getString("title");
-                out_link.description = o.getString("description");
-                out_link.img_src = o.getString("image_src");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return out_link;
         }
     }
 }

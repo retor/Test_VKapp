@@ -30,6 +30,44 @@ public class News {
     public String pic;
     public Drawable picture;
     public Attachment attachment;
+    ArrayList<Profile> profiles;
+    ArrayList<Group> groups;
+
+    public News(){
+    }
+
+    public News parse(JSONObject object){
+        News out = new News();
+        try {
+            out.setType(object.getString("type"));
+            out.setSource_id(object.getInt("source_id"));
+            out.setDate(object.getLong("date"));
+            out.setPost_id(object.getInt("post_id"));
+            out.setText(object.getString("text"));
+            out.setComments_count(object.getJSONObject("comments").getInt("count"));
+            out.setLikes_count(object.getJSONObject("likes").getInt("count"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JSONArray copy_history_json=object.optJSONArray("copy_history");
+        if(copy_history_json!=null) {
+            Log.i("NewsItem", copy_history_json.toString());
+            for (int i = 0; i < copy_history_json.length(); i++) {
+                try {
+                    out.setDate(copy_history_json.getJSONObject(i).getLong("date"));
+                    out.setText(copy_history_json.getJSONObject(i).getString("text"));
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            }
+        }
+        JSONArray attach_json=object.optJSONArray("attachments");
+        if(attach_json!=null) {
+            attachment = new Attachment();
+            out.attachment = Attachment.parse(attach_json);
+        }
+        return out;
+    }
 
     public Drawable getPicture() {
         return picture;
@@ -57,50 +95,9 @@ public class News {
         this.pic = pic;
     }
 
-    ArrayList<Profile> profiles;
-    ArrayList<Group> groups;
-
-    public News(){
-    }
-
     public String getConv_date() {
         conv_date = new Date(date * 1000).toString();
         return conv_date;
-    }
-
-    public News parse(JSONObject object){
-        News out = new News();
-        try {
-            out.setType(object.getString("type"));
-            out.setSource_id(object.getInt("source_id"));
-            out.setDate(object.getLong("date"));
-            out.setPost_id(object.getInt("post_id"));
-            out.setText(object.getString("text"));
-            out.setComments_count(object.getJSONObject("comments").getInt("count"));
-            out.setLikes_count(object.getJSONObject("likes").getInt("count"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JSONArray copy_history_json=object.optJSONArray("copy_history");
-        if(copy_history_json!=null) {
-            Log.i("NewsItem", copy_history_json.toString());
-            for (int i = 0; i < copy_history_json.length(); ++i) {
-                try {
-                    out.setDate(copy_history_json.getJSONObject(i).getLong("date"));
-                    out.setText(copy_history_json.getJSONObject(i).getString("text"));
-                } catch (Throwable th) {
-                    th.printStackTrace();
-                }
-            }
-        }
-        JSONArray attach_json=object.optJSONArray("attachments");
-        if(attach_json!=null) {
-            out.attachment = Attachment.parse(attach_json);
-/*            if (!out.attachment.album.thumb.photo_75.isEmpty()) {
-                setPicture(loadPicture(out.attachment.album.thumb.photo_75));
-            }*/
-        }
-        return out;
     }
 
     public String getType() {

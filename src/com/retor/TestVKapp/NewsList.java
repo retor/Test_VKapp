@@ -38,22 +38,19 @@ public class NewsList extends Activity {
         PrefWork prefWork = new PrefWork(getApplicationContext());
         String token = prefWork.loadToken();
         long id = prefWork.loadUserId();
-        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=10" + "&v=" + Cons.API_V + "&access_token=" + token;
+        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
         tv = (TextView) findViewById(R.id.textView);
         lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();
         asyncTask.execute();
-
-        //adapter = new ListAdapter(getApplicationContext(), R.layout.list_item, newski);
     }
 
     private JSONObject sendRequest(String url) throws IOException {
         JSONObject object = null;
-        URL url2 = new URL(url);
+        URL request_url = new URL(url);
         BufferedReader reader = null;
-        Log.d("READER", url);
         try{
-            reader = new BufferedReader(new InputStreamReader(url2.openConnection().getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(request_url.openConnection().getInputStream()));
             StringWriter sw = new StringWriter();
             sw.write(reader.readLine());
             Log.d("READER", sw.toString());
@@ -74,21 +71,12 @@ public class NewsList extends Activity {
     public ArrayList<News> getNewsArray(JSONObject object) throws JSONException {
         ArrayList<News> out = new ArrayList<News>();
         JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
-        for (int i = 0; i < jsonArray.length(); ++i){
+        for (int i = 0; i < jsonArray.length(); i++){
             News news = new News();
-            try {
-                news  = news.parse((JSONObject)jsonArray.get(i));
-                try {
-                    news.setPicture(Drawable.createFromStream((InputStream) new URL(news.getPic()).getContent(), "321"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            news = news.parse((JSONObject)jsonArray.get(i));
             out.add(news);
         }
-        Log.d("Item text", out.get(0).text);
+/*        Log.d("Item text", out.get(0).text);*/
         return out;
     }
 
@@ -103,7 +91,9 @@ public class NewsList extends Activity {
         protected Void doInBackground(Void... params) {
             try {
                 newski = getNewsArray(sendRequest(url));
-
+                for (int i=0;i<newski.size();i++){
+                    loadpics(newski.get(i));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -119,4 +109,21 @@ public class NewsList extends Activity {
             super.onPostExecute(aVoid);
         }
     };
+
+    public void loadpics(News in){
+        if (in.attachment.type.equals("album")){
+            try {
+                in.picture = Drawable.createFromStream((InputStream) new URL(in.attachment.album.thumb.photo_75).getContent(), "321");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (in.attachment.type.equals("photo")){
+            try {
+                in.picture = Drawable.createFromStream((InputStream) new URL(in.attachment.photo.photo_75).getContent(), "321");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
