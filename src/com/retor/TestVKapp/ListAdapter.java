@@ -1,4 +1,4 @@
-package com.retor.TestVKapp.help;
+package com.retor.TestVKapp;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,8 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.retor.TestVKapp.News;
-import com.retor.TestVKapp.R;
+import com.retor.TestVKapp.classes.News;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +69,9 @@ public class ListAdapter extends BaseAdapter {
         holder.likes = (TextView)out.findViewById(R.id.text_likes);
         holder.comments = (TextView)out.findViewById(R.id.text_comments);
         //fill holder views
-        holder.like_pic.setImageDrawable(context.getResources().getDrawable(R.drawable.like));
-        holder.comment_pic.setImageDrawable(context.getResources().getDrawable(R.drawable.comment));
         holder.text.setText(getItem(position).getText());
         holder.author.setText(String.valueOf(getItem(position).getPost_id()));
-        holder.date.setText(String.valueOf(getItem(position).getDate()));
+        holder.date.setText(getItem(position).getConv_date());
         holder.picture.setImageDrawable(getItem(position).getPicture());
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
         holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));

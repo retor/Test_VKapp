@@ -1,4 +1,4 @@
-package com.retor.TestVKapp;
+package com.retor.TestVKapp.classes;
 
 import org.json.JSONException;
 import org.json.JSONObject;

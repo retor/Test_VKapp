@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.retor.TestVKapp.classes.News;
 import com.retor.TestVKapp.help.Cons;
-import com.retor.TestVKapp.help.ListAdapter;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +77,7 @@ public class NewsList extends Activity {
         for (int i = 0; i < jsonArray.length(); ++i){
             News news = new News();
             try {
-                news  = News.parse((JSONObject)jsonArray.get(i));
+                news  = news.parse((JSONObject)jsonArray.get(i));
                 try {
                     news.setPicture(Drawable.createFromStream((InputStream) new URL(news.getPic()).getContent(), "321"));
                 } catch (IOException e) {

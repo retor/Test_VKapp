@@ -1,4 +1,4 @@
-package com.retor.TestVKapp;
+package com.retor.TestVKapp.classes;
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -6,24 +6,30 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Антон on 17.09.2014.
  */
 public class News {
 
-    String type;
-    int source_id;
-    long date;
-    int post_id;
-    String text;
-    int comments_count;
-    int likes_count;
-    int copy_owner_id;
-    String copy_text;
-    String pic;
-    Drawable picture;
+    public String type;
+    public int source_id;
+    public long date;
+    public String conv_date;
+    public int post_id;
+    public String text;
+    public int comments_count;
+    public int likes_count;
+    public int copy_owner_id;
+    public String copy_text;
+    public String pic;
+    public Drawable picture;
+    public Attachment attachment;
 
     public Drawable getPicture() {
         return picture;
@@ -31,6 +37,16 @@ public class News {
 
     public void setPicture(Drawable picture) {
         this.picture = picture;
+    }
+
+    public Drawable loadPicture(String url){
+        Drawable out = null;
+        try {
+            out = Drawable.createFromStream((InputStream) new URL(url).getContent(), "321");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return out;
     }
 
     public String getPic() {
@@ -47,44 +63,43 @@ public class News {
     public News(){
     }
 
-    public static News parse(JSONObject object){
+    public String getConv_date() {
+        conv_date = new Date(date * 1000).toString();
+        return conv_date;
+    }
+
+    public News parse(JSONObject object){
         News out = new News();
         try {
-            out.type = object.getString("type");
-            out.source_id = object.getInt("source_id");
-            out.date = object.getLong("date");
-            out.post_id = object.getInt("post_id");
-            out.text = object.getString("text");
-            out.comments_count = object.getJSONObject("comments").getInt("count");
-            out.likes_count = object.getJSONObject("likes").getInt("count");
+            out.setType(object.getString("type"));
+            out.setSource_id(object.getInt("source_id"));
+            out.setDate(object.getLong("date"));
+            out.setPost_id(object.getInt("post_id"));
+            out.setText(object.getString("text"));
+            out.setComments_count(object.getJSONObject("comments").getInt("count"));
+            out.setLikes_count(object.getJSONObject("likes").getInt("count"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         JSONArray copy_history_json=object.optJSONArray("copy_history");
-            if(copy_history_json!=null) {
-                Log.i("NewsItem", copy_history_json.toString());
-                for (int i = 0; i < copy_history_json.length(); ++i) {
-                    try {
-                        out.date = copy_history_json.getJSONObject(i).getLong("date");
-                        out.text = copy_history_json.getJSONObject(i).getString("text");
-                    } catch (Throwable th) {
-                        th.printStackTrace();
-                    }
-                }
-            }
-        JSONArray attach_json=object.optJSONArray("attachments");
-        if(attach_json!=null) {
-            for (int i = 0; i < attach_json.length(); ++i) {
+        if(copy_history_json!=null) {
+            Log.i("NewsItem", copy_history_json.toString());
+            for (int i = 0; i < copy_history_json.length(); ++i) {
                 try {
-                    //if (attach_json.getJSONObject(i).getString("type").equalsIgnoreCase("photo"))
-                    out.pic = attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75");
-                    Log.d("Object picture", attach_json.getJSONObject(i).getJSONObject("photo").getString("photo_75").toString());
+                    out.setDate(copy_history_json.getJSONObject(i).getLong("date"));
+                    out.setText(copy_history_json.getJSONObject(i).getString("text"));
                 } catch (Throwable th) {
                     th.printStackTrace();
                 }
             }
         }
-
+        JSONArray attach_json=object.optJSONArray("attachments");
+        if(attach_json!=null) {
+            out.attachment = Attachment.parse(attach_json);
+/*            if (!out.attachment.album.thumb.photo_75.isEmpty()) {
+                setPicture(loadPicture(out.attachment.album.thumb.photo_75));
+            }*/
+        }
         return out;
     }
 
