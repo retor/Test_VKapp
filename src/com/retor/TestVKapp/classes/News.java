@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -30,8 +29,25 @@ public class News {
     public String pic;
     public Drawable picture;
     public Attachment attachment;
-    ArrayList<Profile> profiles;
-    ArrayList<Group> groups;
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    Profile profile;
+    Group group;
 
     public News(){
     }
@@ -170,21 +186,5 @@ public class News {
 
     public void setCopy_text(String copy_text) {
         this.copy_text = copy_text;
-    }
-
-    public ArrayList<Profile> getProfiles() {
-        return profiles;
-    }
-
-    public void setProfiles(ArrayList<Profile> profiles) {
-        this.profiles = profiles;
-    }
-
-    public ArrayList<Group> getGroups() {
-        return groups;
-    }
-
-    public void setGroups(ArrayList<Group> groups) {
-        this.groups = groups;
     }
 }

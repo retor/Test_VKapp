@@ -76,7 +76,6 @@ public class ListAdapter extends BaseAdapter {
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
         holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));
         return out;
-        
     }
 
     private class ViewHolder{

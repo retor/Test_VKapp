@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.retor.TestVKapp.classes.Group;
 import com.retor.TestVKapp.classes.News;
+import com.retor.TestVKapp.classes.Profile;
 import com.retor.TestVKapp.help.Cons;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONArray;
@@ -71,12 +73,63 @@ public class NewsList extends Activity {
     public ArrayList<News> getNewsArray(JSONObject object) throws JSONException {
         ArrayList<News> out = new ArrayList<News>();
         JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
+        ArrayList<Profile> profiles = getProfArray(object.getJSONArray("profiles"));
+        ArrayList<Group> groups = getGroupArray(object.getJSONArray("groups"));
         for (int i = 0; i < jsonArray.length(); i++){
             News news = new News();
             news = news.parse((JSONObject)jsonArray.get(i));
+            if (news.getSource_id()>0 && news.getCopy_owner_id()>0){
+                news.setProfile(getProf(profiles, news.getSource_id()));
+            }
+            if (news.getSource_id()>0 && news.getCopy_owner_id()>0){
+
+            }
+
             out.add(news);
         }
+
 /*        Log.d("Item text", out.get(0).text);*/
+        return out;
+    }
+
+
+
+    private Profile getProf(ArrayList<Profile> arrayin, int in){
+        Profile profile = new Profile();
+        for (int i=0; i< arrayin.size(); i++){
+            if (arrayin.get(i).id == in)
+                return profile;
+        }
+        return null;
+    }
+
+    private ArrayList<Profile> getProfArray(JSONArray in){
+        ArrayList<Profile> out = new ArrayList<Profile>();
+        if (in!=null)
+        for (int i=0; i<in.length(); i++){
+            Profile profile = new Profile();
+            try {
+                profile = profile.parse((JSONObject)in.get(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            out.add(profile);
+        }
+        return out;
+    }
+
+    private ArrayList<Group> getGroupArray(JSONArray in){
+        ArrayList<Group> out = new ArrayList<Group>();
+        if (in!=null)
+            for (int i=0; i<in.length(); i++){
+                Group group = new Group();
+                try {
+                    group = group.parse((JSONObject)in.get(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                out.add(group);
+            }
         return out;
     }
 
