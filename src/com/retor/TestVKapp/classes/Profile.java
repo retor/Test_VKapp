@@ -1,5 +1,6 @@
 package com.retor.TestVKapp.classes;
 
+import android.graphics.drawable.Drawable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,13 +9,14 @@ import org.json.JSONObject;
  */
 public class Profile {
 
-    public int id;
+    public long id;
     String first_name;
     String last_name;
     String sex;
     String screen_name;
     String photo_50;
     Boolean online;
+    public Drawable picture;
 
     public Profile(){
     }
@@ -22,7 +24,7 @@ public class Profile {
     public static Profile parse(JSONObject object){
         Profile out = new Profile();
         try {
-            out.id = object.getInt("id");
+            out.id = object.getLong("id");
             out.first_name = object.getString("first_name");
             out.last_name = object.getString("last_name");
             out.sex = getGender(object.getInt("sex"));
@@ -54,5 +56,29 @@ public class Profile {
            if (in == 1)
                out = true;
         return out;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getPhoto_50() {
+        return photo_50;
+    }
+
+    public void setPhoto_50(String photo_50) {
+        this.photo_50 = photo_50;
     }
 }

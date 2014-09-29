@@ -17,7 +17,8 @@ import java.util.Date;
 public class News {
 
     public String type;
-    public int source_id;
+    public long source_id;
+    public long signer_id;
     public long date;
     public String conv_date;
     public int post_id;
@@ -29,25 +30,9 @@ public class News {
     public String pic;
     public Drawable picture;
     public Attachment attachment;
+    public Profile profile;
+    public Group group;
 
-    public Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    Profile profile;
-    Group group;
 
     public News(){
     }
@@ -56,12 +41,14 @@ public class News {
         News out = new News();
         try {
             out.setType(object.getString("type"));
-            out.setSource_id(object.getInt("source_id"));
+            out.setSource_id(object.getLong("source_id"));
             out.setDate(object.getLong("date"));
             out.setPost_id(object.getInt("post_id"));
             out.setText(object.getString("text"));
             out.setComments_count(object.getJSONObject("comments").getInt("count"));
             out.setLikes_count(object.getJSONObject("likes").getInt("count"));
+            if (object.getLong("signer_id")!=0)
+                out.signer_id = object.getInt("signer_id");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -83,6 +70,22 @@ public class News {
             out.attachment = Attachment.parse(attach_json);
         }
         return out;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public Drawable getPicture() {
@@ -124,11 +127,11 @@ public class News {
         this.type = type;
     }
 
-    public int getSource_id() {
+    public long getSource_id() {
         return source_id;
     }
 
-    public void setSource_id(int source_id) {
+    public void setSource_id(long source_id) {
         this.source_id = source_id;
     }
 

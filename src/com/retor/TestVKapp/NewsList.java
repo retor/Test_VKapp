@@ -1,22 +1,24 @@
 package com.retor.TestVKapp;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ListView;
-import android.widget.TextView;
-import com.retor.TestVKapp.classes.Group;
+import android.view.View;
+import android.widget.*;
 import com.retor.TestVKapp.classes.News;
-import com.retor.TestVKapp.classes.Profile;
 import com.retor.TestVKapp.help.Cons;
+import com.retor.TestVKapp.help.NewsLoader;
 import com.retor.TestVKapp.help.PrefWork;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,19 +34,49 @@ public class NewsList extends Activity {
     ListView lv;
     List<News> newski;
     ListAdapter adapter;
+    String url_next;
+    String url_prev;
+    ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
-        PrefWork prefWork = new PrefWork(getApplicationContext());
+        final PrefWork prefWork = new PrefWork(getApplicationContext());
         String token = prefWork.loadToken();
         long id = prefWork.loadUserId();
-        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
-        tv = (TextView) findViewById(R.id.textView);
+        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=20" + "&v=" + Cons.API_V + "&access_token=" + token;
         lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();
+        Button logout = (Button)findViewById(R.id.logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.webkit.CookieManager.getInstance().removeAllCookie();
+                prefWork.clearPref();
+                startActivity(new Intent(getApplicationContext(), AuthWeb.class));
+                finish();
+            }
+        });
+
         asyncTask.execute();
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
     }
 
     private JSONObject sendRequest(String url) throws IOException {
@@ -70,69 +102,6 @@ public class NewsList extends Activity {
         return object;
     }
 
-    public ArrayList<News> getNewsArray(JSONObject object) throws JSONException {
-        ArrayList<News> out = new ArrayList<News>();
-        JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
-        ArrayList<Profile> profiles = getProfArray(object.getJSONArray("profiles"));
-        ArrayList<Group> groups = getGroupArray(object.getJSONArray("groups"));
-        for (int i = 0; i < jsonArray.length(); i++){
-            News news = new News();
-            news = news.parse((JSONObject)jsonArray.get(i));
-            if (news.getSource_id()>0 && news.getCopy_owner_id()>0){
-                news.setProfile(getProf(profiles, news.getSource_id()));
-            }
-            if (news.getSource_id()>0 && news.getCopy_owner_id()>0){
-
-            }
-
-            out.add(news);
-        }
-
-/*        Log.d("Item text", out.get(0).text);*/
-        return out;
-    }
-
-
-
-    private Profile getProf(ArrayList<Profile> arrayin, int in){
-        Profile profile = new Profile();
-        for (int i=0; i< arrayin.size(); i++){
-            if (arrayin.get(i).id == in)
-                return profile;
-        }
-        return null;
-    }
-
-    private ArrayList<Profile> getProfArray(JSONArray in){
-        ArrayList<Profile> out = new ArrayList<Profile>();
-        if (in!=null)
-        for (int i=0; i<in.length(); i++){
-            Profile profile = new Profile();
-            try {
-                profile = profile.parse((JSONObject)in.get(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            out.add(profile);
-        }
-        return out;
-    }
-
-    private ArrayList<Group> getGroupArray(JSONArray in){
-        ArrayList<Group> out = new ArrayList<Group>();
-        if (in!=null)
-            for (int i=0; i<in.length(); i++){
-                Group group = new Group();
-                try {
-                    group = group.parse((JSONObject)in.get(i));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                out.add(group);
-            }
-        return out;
-    }
-
     AsyncTask<Void, Void , Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
         @Override
@@ -143,10 +112,7 @@ public class NewsList extends Activity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                newski = getNewsArray(sendRequest(url));
-                for (int i=0;i<newski.size();i++){
-                    loadpics(newski.get(i));
-                }
+                newski = new NewsLoader().getNewsArray(sendRequest(url));
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -163,20 +129,5 @@ public class NewsList extends Activity {
         }
     };
 
-    public void loadpics(News in){
-        if (in.attachment.type.equals("album")){
-            try {
-                in.picture = Drawable.createFromStream((InputStream) new URL(in.attachment.album.thumb.photo_75).getContent(), "321");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (in.attachment.type.equals("photo")){
-            try {
-                in.picture = Drawable.createFromStream((InputStream) new URL(in.attachment.photo.photo_75).getContent(), "321");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 }

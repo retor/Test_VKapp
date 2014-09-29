@@ -24,15 +24,16 @@ public class AuthWeb extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authweb);
         prefWork = new PrefWork(this);
-        prefWork.clearPref();
-        /*if (getSharedPreferences(Cons.PREF_NAME, MODE_MULTI_PROCESS).getString(Cons.TOKEN_PREF, null)!=null){
-            Intent intent = new Intent(this, NewsList.class);
+        //prefWork.clearPref();
+        if (getSharedPreferences(Cons.PREF_NAME, MODE_MULTI_PROCESS).getString(Cons.TOKEN_PREF, null)!=null){
+            Intent intent = new Intent(getApplicationContext(), NewsList.class);
             startActivity(intent);
-        }*/
+            finish();
+        }
         wv = (WebView)findViewById(R.id.webauth);
         wv.setWebViewClient(new AuthWebClient());
-        wv.getSettings().setJavaScriptEnabled(true);
         wv.clearCache(true);
+        wv.getSettings().setJavaScriptEnabled(true);
         String url= Cons.AUTH_URL;
         wv.loadUrl(url);
     }
@@ -57,7 +58,6 @@ public class AuthWeb extends Activity {
                     Intent intent=new Intent();
                     intent.putExtra("token", auth[0]);
                     intent.putExtra("user_id", Long.parseLong(auth[1]));
-                    /*PrefWork prefWork = new PrefWork(this);*/
                     prefWork.savePref(Cons.PREF_NAME, auth[0], Long.parseLong(auth[1]));
                     Log.d("PrefSave", auth[0]+" "+auth[1]);
                     setResult(Activity.RESULT_OK, intent);

@@ -63,14 +63,21 @@ public class ListAdapter extends BaseAdapter {
         holder.author = (TextView)out.findViewById(R.id.item_author);
         holder.date = (TextView)out.findViewById(R.id.item_date);
         holder.picture = (ImageView)out.findViewById(R.id.item_image);
-        holder.text.setMaxLines(2);
+        holder.text.setMaxLines(5);
         holder.comment_pic = (ImageView)out.findViewById(R.id.image_comment);
         holder.like_pic = (ImageView)out.findViewById(R.id.image_like);
         holder.likes = (TextView)out.findViewById(R.id.text_likes);
         holder.comments = (TextView)out.findViewById(R.id.text_comments);
+        holder.author_pic = (ImageView)out.findViewById(R.id.author_pic);
         //fill holder views
         holder.text.setText(getItem(position).getText());
-        holder.author.setText(String.valueOf(getItem(position).getPost_id()));
+        if (getItem(position).profile!=null){
+            holder.author.setText(getItem(position).profile.getFirst_name() + " " + getItem(position).profile.getLast_name());
+            holder.author_pic.setImageDrawable(getItem(position).getProfile().picture);
+        }else{
+            holder.author.setText(getItem(position).group.getName());
+            holder.author_pic.setImageDrawable(getItem(position).getGroup().picture);
+        }
         holder.date.setText(getItem(position).getConv_date());
         holder.picture.setImageDrawable(getItem(position).getPicture());
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
@@ -87,5 +94,6 @@ public class ListAdapter extends BaseAdapter {
         ImageView comment_pic;
         TextView likes;
         TextView comments;
+        ImageView author_pic;
     }
 }
