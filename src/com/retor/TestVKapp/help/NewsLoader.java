@@ -52,7 +52,7 @@ public class NewsLoader {
         return out;
     }
 
-    private void loadProfilePics(Profile in){
+ /*   private void loadProfilePics(Profile in){
         if (in!=null){
             try {
                 in.picture = Drawable.createFromStream((InputStream) new URL(in.getPhoto_50()).getContent(), "profile");
@@ -70,7 +70,7 @@ public class NewsLoader {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 
     private Profile getProf(ArrayList<Profile> arrayin, long in){
         Profile profile = new Profile();
@@ -78,7 +78,7 @@ public class NewsLoader {
             if (arrayin.get(i).id == in)
                 profile = arrayin.get(i);
         }
-        loadProfilePics(profile);
+        //loadProfilePics(profile);
         return profile;
     }
 
@@ -88,7 +88,7 @@ public class NewsLoader {
             if (((arrayin.get(i).id)*-1) == in || arrayin.get(i).id == in)
                 group = arrayin.get(i);
         }
-        loadGroupPics(group);
+        //loadGroupPics(group);
         return group;
     }
 

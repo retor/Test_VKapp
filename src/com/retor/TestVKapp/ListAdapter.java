@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.retor.TestVKapp.classes.News;
+import com.retor.TestVKapp.help.PicturesLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,7 @@ public class ListAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         out = inflater.inflate(res, parent, false);
         holder = new ViewHolder();
+        PicturesLoader loader = new PicturesLoader();
         //set holder views
         holder.text = (TextView)out.findViewById(R.id.item_text);
         holder.author = (TextView)out.findViewById(R.id.item_author);
@@ -72,13 +74,16 @@ public class ListAdapter extends BaseAdapter {
         //fill holder views
         holder.text.setText(getItem(position).getText());
         if (getItem(position).profile!=null){
+            loader.loadImage(holder.author_pic, getItem(position).getProfile().getPhoto_50());
             holder.author.setText(getItem(position).profile.getFirst_name() + " " + getItem(position).profile.getLast_name());
-            holder.author_pic.setImageDrawable(getItem(position).getProfile().picture);
+            //holder.author_pic.setImageDrawable(getItem(position).getProfile().picture);
         }else{
+            loader.loadImage(holder.author_pic, getItem(position).getGroup().getPhoto_50());
             holder.author.setText(getItem(position).group.getName());
-            holder.author_pic.setImageDrawable(getItem(position).getGroup().picture);
+            //holder.author_pic.setImageDrawable(getItem(position).getGroup().picture);
         }
         holder.date.setText(getItem(position).getConv_date());
+        //new PicturesLoader().loadImage(holder.picture, getItem(position).getPic());
         holder.picture.setImageDrawable(getItem(position).getPicture());
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
         holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));
