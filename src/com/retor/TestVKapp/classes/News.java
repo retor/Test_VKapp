@@ -27,8 +27,6 @@ public class News {
     public int likes_count;
     public int copy_owner_id;
     public String copy_text;
-    public String pic;
-    public Drawable picture;
     public Attachment attachment;
     public Profile profile;
     public Group group;
@@ -88,14 +86,6 @@ public class News {
         this.group = group;
     }
 
-    public Drawable getPicture() {
-        return picture;
-    }
-
-    public void setPicture(Drawable picture) {
-        this.picture = picture;
-    }
-
     public Drawable loadPicture(String url){
         Drawable out = null;
         try {
@@ -104,14 +94,6 @@ public class News {
             e.printStackTrace();
         }
         return out;
-    }
-
-    public String getPic() {
-        return pic;
-    }
-
-    public void setPic(String pic) {
-        this.pic = pic;
     }
 
     public String getConv_date() {

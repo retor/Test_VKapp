@@ -1,6 +1,5 @@
 package com.retor.TestVKapp.classes;
 
-import android.graphics.drawable.Drawable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,11 +8,10 @@ import org.json.JSONObject;
  */
 public class Group {
     public long id;
-    String name;
-    String screen_name;
-    String type;
-    String photo_50;
-    public Drawable picture;
+    public String name;
+    public String screen_name;
+    public String type;
+    public String photo_50;
 
     public Group(){
     }
@@ -30,25 +28,5 @@ public class Group {
             e.printStackTrace();
         }
         return out;
-    }
-
-    public String getScreen_name() {
-        return screen_name;
-    }
-
-    public void setScreen_name(String screen_name) {
-        this.screen_name = screen_name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoto_50() {
-        return photo_50;
     }
 }

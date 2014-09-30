@@ -63,7 +63,8 @@ public class NewsList extends Activity {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                NewsFragment newsFragment = new NewsFragment(getApplicationContext(), newski.get(position));
+                newsFragment.show(getFragmentManager(), newski.get(position).toString());
             }
         });
         lv.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -128,6 +129,4 @@ public class NewsList extends Activity {
             super.onPostExecute(aVoid);
         }
     };
-
-
 }

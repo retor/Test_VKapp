@@ -8,18 +8,18 @@ import org.json.JSONObject;
  */
 public class Photo {
 
-    int id;
-    int album_id;
-    int owner_id;
-    int user_id;
+    public int id;
+    public int album_id;
+    public int owner_id;
+    public int user_id;
     public String photo_75;
-    String photo_130;
-    String photo_604;
-    String photo_807;
-    String text;//: '',
-    long date;
-    int post_id;
-    String access_key;
+    public String photo_130;
+    public String photo_604;
+    public String photo_807;
+    public String text;//: '',
+    public long date;
+    public int post_id;
+    private String access_key;
 
     public Photo(){}
 
@@ -42,5 +42,13 @@ public class Photo {
             e.printStackTrace();
         }
         return out;
+    }
+
+    public String getAccess_key() {
+        return access_key;
+    }
+
+    public void setAccess_key(String access_key) {
+        this.access_key = access_key;
     }
 }

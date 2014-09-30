@@ -1,23 +1,25 @@
 package com.retor.TestVKapp;
 
-import android.app.Fragment;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import com.retor.TestVKapp.classes.News;
+import com.retor.TestVKapp.help.PicturesLoader;
+
+import java.util.ArrayList;
 
 /**
  * Created by Антон on 29.09.2014.
  */
-public class NewsFragment extends Fragment {
+public class NewsFragment extends DialogFragment {
     Context context;
-    News news;
-
-    public NewsFragment() {
-        super();
-    }
+    private News news;
 
     public NewsFragment(Context context, News news) {
         super();
@@ -28,6 +30,7 @@ public class NewsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Fragment created", "started");
     }
 
     /**
@@ -51,7 +54,27 @@ public class NewsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //return super.onCreateView(inflater, container, savedInstanceState);
-        View out_view = inflater.inflate(R.layout.newsfragment, null);
+        //View out_view = inflater.inflate(R.layout.newsfragment, container, false);
+        View v = new View(context);
+        LinearLayout out_view = new LinearLayout(getDialog().getContext());
+        out_view.setOrientation(LinearLayout.VERTICAL);
+        // создаем LayoutParams
+        ViewGroup.LayoutParams linLayoutParam = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        out_view.setLayoutParams(new ViewGroup.LayoutParams(350, 350));
+        ArrayList<View> views = new ArrayList<View>();
+        if (news.attachment.type.equals("album")){
+            PicturesLoader loader = PicturesLoader.instance(getDialog().getContext());
+            for (int i=0; i<news.attachment.album.size; i++){
+                ImageView imageView = new ImageView(this.getDialog().getContext());
+                imageView.setMaxHeight(150);
+                imageView.setMaxWidth(150);
+                loader.loadImage(imageView, news.attachment.album.thumb.photo_130);
+                views.add(imageView);
+
+            }
+            out_view.addChildrenForAccessibility(views);
+        }
+        
         //init views
 
         //fill views

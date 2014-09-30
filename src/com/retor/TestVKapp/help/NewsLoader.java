@@ -1,6 +1,5 @@
 package com.retor.TestVKapp.help;
 
-import android.graphics.drawable.Drawable;
 import com.retor.TestVKapp.classes.Group;
 import com.retor.TestVKapp.classes.News;
 import com.retor.TestVKapp.classes.Profile;
@@ -8,9 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -46,31 +42,11 @@ public class NewsLoader {
                     news.setProfile(getProf(profiles, news.signer_id));
                 }
             }
-            loadpics(news);
+            //loadpics(news);
             out.add(news);
         }
         return out;
     }
-
- /*   private void loadProfilePics(Profile in){
-        if (in!=null){
-            try {
-                in.picture = Drawable.createFromStream((InputStream) new URL(in.getPhoto_50()).getContent(), "profile");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void loadGroupPics(Group in){
-        if (in!=null){
-            try {
-                in.picture = Drawable.createFromStream((InputStream) new URL(in.getPhoto_50()).getContent(), "group");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 
     private Profile getProf(ArrayList<Profile> arrayin, long in){
         Profile profile = new Profile();
@@ -122,7 +98,7 @@ public class NewsLoader {
         return out;
     }
 
-    public void loadpics(News in){
+/*    public void loadpics(News in){
         if (in.attachment!=null) {
             if (in.attachment.type.equals("album")) {
                 try {
@@ -140,4 +116,24 @@ public class NewsLoader {
             }
         }
     }
+
+    private void loadProfilePics(Profile in){
+        if (in!=null){
+            try {
+                in.picture = Drawable.createFromStream((InputStream) new URL(in.getPhoto_50()).getContent(), "profile");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadGroupPics(Group in){
+        if (in!=null){
+            try {
+                in.picture = Drawable.createFromStream((InputStream) new URL(in.getPhoto_50()).getContent(), "group");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }*/
 }

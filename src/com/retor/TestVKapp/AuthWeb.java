@@ -29,13 +29,14 @@ public class AuthWeb extends Activity {
             Intent intent = new Intent(getApplicationContext(), NewsList.class);
             startActivity(intent);
             finish();
+        }else {
+            wv = (WebView) findViewById(R.id.webauth);
+            wv.setWebViewClient(new AuthWebClient());
+            wv.clearCache(true);
+            wv.getSettings().setJavaScriptEnabled(true);
+            String url = Cons.AUTH_URL;
+            wv.loadUrl(url);
         }
-        wv = (WebView)findViewById(R.id.webauth);
-        wv.setWebViewClient(new AuthWebClient());
-        wv.clearCache(true);
-        wv.getSettings().setJavaScriptEnabled(true);
-        String url= Cons.AUTH_URL;
-        wv.loadUrl(url);
     }
 
     class AuthWebClient extends WebViewClient {

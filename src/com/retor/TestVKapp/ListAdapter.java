@@ -54,12 +54,12 @@ public class ListAdapter extends BaseAdapter {
         View out;
         ViewHolder holder;
         if (convertView!=null){
-            out = convertView;
+            return convertView;
         }
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         out = inflater.inflate(res, parent, false);
         holder = new ViewHolder();
-        PicturesLoader loader = new PicturesLoader();
+        PicturesLoader loader = PicturesLoader.instance(context);
         //set holder views
         holder.text = (TextView)out.findViewById(R.id.item_text);
         holder.author = (TextView)out.findViewById(R.id.item_author);
@@ -74,17 +74,21 @@ public class ListAdapter extends BaseAdapter {
         //fill holder views
         holder.text.setText(getItem(position).getText());
         if (getItem(position).profile!=null){
-            loader.loadImage(holder.author_pic, getItem(position).getProfile().getPhoto_50());
-            holder.author.setText(getItem(position).profile.getFirst_name() + " " + getItem(position).profile.getLast_name());
+            loader.loadImage(holder.author_pic, getItem(position).getProfile().photo_50);
+            holder.author.setText(getItem(position).profile.first_name + " " + getItem(position).profile.last_name);
             //holder.author_pic.setImageDrawable(getItem(position).getProfile().picture);
         }else{
-            loader.loadImage(holder.author_pic, getItem(position).getGroup().getPhoto_50());
-            holder.author.setText(getItem(position).group.getName());
+            loader.loadImage(holder.author_pic, getItem(position).getGroup().photo_50);
+            holder.author.setText(getItem(position).group.name);
             //holder.author_pic.setImageDrawable(getItem(position).getGroup().picture);
         }
         holder.date.setText(getItem(position).getConv_date());
-        //new PicturesLoader().loadImage(holder.picture, getItem(position).getPic());
-        holder.picture.setImageDrawable(getItem(position).getPicture());
+        if (getItem(position).attachment.type.equals("album")) {
+            loader.loadImage(holder.picture, getItem(position).attachment.album.thumb.photo_75);
+        }
+        if (getItem(position).attachment.type.equals("photo")) {
+            loader.loadImage(holder.picture, getItem(position).attachment.photo.photo_75);
+        }
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
         holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));
         return out;

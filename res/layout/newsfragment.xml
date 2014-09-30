@@ -7,9 +7,17 @@
               android:weightSum="1">
 
     <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="New Text"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:text="New Textfdgdfgdfgdf dfhbfghvdfhdfhdfghcdhdfghvdhfdhbfhbfghdfhfghfhdfhfdhdfh"
             android:id="@+id/textView"
             android:layout_weight="0.22"/>
+
+    <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/imageView"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.22"
+            android:src="#ffff3960"/>
 </LinearLayout>
