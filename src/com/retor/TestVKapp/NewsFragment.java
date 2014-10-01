@@ -12,10 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.retor.TestVKapp.classes.News;
-import com.retor.TestVKapp.classes.Photo;
 import com.retor.TestVKapp.help.PicturesLoader;
-
-import java.util.ArrayList;
 
 /**
  * Created by Антон on 29.09.2014.
@@ -60,10 +57,10 @@ public class NewsFragment extends DialogFragment {
         time.setText(news.getConv_date().substring(0, 19));
         time.setLayoutParams(params);
         if (news.profile!=null){
-            loader.loadImage(personImage, news.profile.photo_50);
+            loader.loadImage(personImage, news.profile.photo_100);
             personName.setText(news.profile.first_name + " " + news.profile.last_name);
         }else{
-            loader.loadImage(personImage, news.group.photo_50);
+            loader.loadImage(personImage, news.group.photo_100);
             personName.setText(news.group.name);
         }
         layoutPerson.addView(personImage);
@@ -81,6 +78,10 @@ public class NewsFragment extends DialogFragment {
         messageText.setLayoutParams(params);
         if (news.attachment.type.equals("photo")){
             loader.loadImage(messagePic, news.attachment.photo.photo_604);
+            layoutMessage.addView(messagePic);
+        }
+        if (news.attachment.type.equals("video")){
+            loader.loadImage(messagePic, news.attachment.video.photo_640);
             layoutMessage.addView(messagePic);
         }
         if (news.text!=null || news.copy_text!=null){
@@ -102,11 +103,5 @@ public class NewsFragment extends DialogFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    private ArrayList<Photo> requestAlbum(News news_in){
-        ArrayList<Photo> out = new ArrayList<Photo>();
-
-        return out;
     }
 }

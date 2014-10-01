@@ -12,6 +12,7 @@ public class Group {
     public String screen_name;
     public String type;
     public String photo_50;
+    public String photo_100;
 
     public Group(){
     }
@@ -24,6 +25,7 @@ public class Group {
             out.screen_name = object.getString("screen_name");
             out.type = object.getString("type");
             out.photo_50 = object.getString("photo_50");
+            out.photo_100 = object.getString("photo_100");
         } catch (JSONException e) {
             e.printStackTrace();
         }

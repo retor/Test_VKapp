@@ -12,6 +12,7 @@ public class Attachment {
     public Album album;
     public Photo photo;
     public Link link;
+    public Video video;
 
     public Attachment(){}
 
@@ -31,6 +32,10 @@ public class Attachment {
                 if (att.getString("type").equals("link")){
                     out.type = att.getString("type");
                     out.link = Link.parse(((JSONObject) array.get(i)).getJSONObject("link"));
+                }
+                if (att.getString("type").equals("video")){
+                    out.type = att.getString("type");
+                    out.video = Video.parse(((JSONObject) array.get(i)).getJSONObject("video"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

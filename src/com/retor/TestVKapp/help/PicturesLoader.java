@@ -20,8 +20,6 @@ public class PicturesLoader {
     private static PicturesLoader instance = null;
     Context context;
 
-    public PicturesLoader(){}
-
     protected PicturesLoader(Context context){
         this.context = context;
     }

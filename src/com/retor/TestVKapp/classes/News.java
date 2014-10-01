@@ -63,6 +63,15 @@ public class News {
             }
         }
         JSONArray attach_json=object.optJSONArray("attachments");
+        if(attach_json==null) {
+            for (int i = 0; i < copy_history_json.length(); i++) {
+                try {
+                    attach_json = ((JSONObject) copy_history_json.get(i)).getJSONArray("attachments");
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            }
+        }
         if(attach_json!=null) {
             attachment = new Attachment();
             out.attachment = Attachment.parse(attach_json);

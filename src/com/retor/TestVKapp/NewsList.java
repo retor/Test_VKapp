@@ -1,25 +1,16 @@
 package com.retor.TestVKapp;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import com.retor.TestVKapp.classes.News;
-import com.retor.TestVKapp.help.Cons;
 import com.retor.TestVKapp.help.NewsLoader;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,23 +20,19 @@ import java.util.List;
 public class NewsList extends Activity {
 
     private String TAG = "Request";
-    String url;
-    TextView tv;
     ListView lv;
     List<News> newski;
     ListAdapter adapter;
-    String url_next;
-    String url_prev;
-    ProgressDialog pd;
+    NewsLoader newsLoader;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
-        final PrefWork prefWork = new PrefWork(getApplicationContext());
-        String token = prefWork.loadToken();
-        long id = prefWork.loadUserId();
-        url = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
+        newsLoader = NewsLoader.instance(getApplicationContext());
+
+
         lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();
         Button logout = (Button)findViewById(R.id.logout);
@@ -53,13 +40,14 @@ public class NewsList extends Activity {
             @Override
             public void onClick(View v) {
                 android.webkit.CookieManager.getInstance().removeAllCookie();
-                prefWork.clearPref();
+                new PrefWork(getApplicationContext()).clearPref();
                 startActivity(new Intent(getApplicationContext(), AuthWeb.class));
                 finish();
             }
         });
 
-        asyncTask.execute();
+        //asyncTask.execute();
+        new TaskRequest().execute();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -75,33 +63,14 @@ public class NewsList extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
+                if ((totalItemCount-3)==firstVisibleItem){
+                    new TaskRequest().execute();
+                }
             }
         });
     }
 
-    private JSONObject sendRequest(String url) throws IOException {
-        JSONObject object = null;
-        URL request_url = new URL(url);
-        BufferedReader reader = null;
-        try{
-            reader = new BufferedReader(new InputStreamReader(request_url.openConnection().getInputStream()));
-            StringWriter sw = new StringWriter();
-            sw.write(reader.readLine());
-            Log.d("READER", sw.toString());
-            try {
-                object = new JSONObject(sw.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        finally{
-            if(reader!=null)
-                reader.close();
-        }
-        Log.d("JSON", object.toString());
-        return object;
-    }
+
 
     AsyncTask<Void, Void , Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
@@ -112,21 +81,74 @@ public class NewsList extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                newski = new NewsLoader().getNewsArray(sendRequest(url));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (newski==null) {
+                try {
+                    newski = newsLoader.getNewsArray();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    newski.addAll(newsLoader.getNewsArray());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
-            lv.setAdapter(adapter);
+            if (adapter==null){
+                adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
+                lv.setAdapter(adapter);
+            }else {
+                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetInvalidated();
+            }
             super.onPostExecute(aVoid);
         }
     };
+
+    private class TaskRequest extends AsyncTask<Void, Void , Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (newski.size()==0) {
+                try {
+                    newski = newsLoader.getNewsArray();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    newski.addAll(newsLoader.getNewsArray());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (adapter==null){
+                adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
+                lv.setAdapter(adapter);
+            }else {
+                adapter.notifyDataSetChanged();
+                int i = lv.getLastVisiblePosition();
+                lv.setAdapter(adapter);
+                lv.deferNotifyDataSetChanged();
+                lv.setSelection(i);
+                //adapter.notifyDataSetInvalidated();
+
+            }
+            super.onPostExecute(aVoid);
+        }
+    }
 }

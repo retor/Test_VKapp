@@ -23,7 +23,7 @@ public class AuthWeb extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authweb);
-        prefWork = new PrefWork(this);
+        prefWork = new PrefWork(getApplicationContext());
         //prefWork.clearPref();
         if (getSharedPreferences(Cons.PREF_NAME, MODE_MULTI_PROCESS).getString(Cons.TOKEN_PREF, null)!=null){
             Intent intent = new Intent(getApplicationContext(), NewsList.class);

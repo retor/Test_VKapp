@@ -28,7 +28,6 @@ public class ListAdapter extends BaseAdapter {
     }
 
     public ListAdapter(Context context, List<News> objects, int resource) {
-        //super(context, resource, objects);
         array = new ArrayList<News>(objects);
         this.context = context;
         res = resource;
@@ -51,15 +50,12 @@ public class ListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        View out;
-        ViewHolder holder;
-        if (convertView!=null){
-            return convertView;
-        }
+        View out = convertView;
+        ViewHolder holder = new ViewHolder();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        out = inflater.inflate(res, parent, false);
-        holder = new ViewHolder();
         PicturesLoader loader = PicturesLoader.instance(context);
+        if (out==null)
+            out = inflater.inflate(res, parent, false);
         //set holder views
         holder.text = (TextView)out.findViewById(R.id.item_text);
         holder.author = (TextView)out.findViewById(R.id.item_author);
@@ -76,18 +72,19 @@ public class ListAdapter extends BaseAdapter {
         if (getItem(position).profile!=null){
             loader.loadImage(holder.author_pic, getItem(position).getProfile().photo_50);
             holder.author.setText(getItem(position).profile.first_name + " " + getItem(position).profile.last_name);
-            //holder.author_pic.setImageDrawable(getItem(position).getProfile().picture);
         }else{
             loader.loadImage(holder.author_pic, getItem(position).getGroup().photo_50);
             holder.author.setText(getItem(position).group.name);
-            //holder.author_pic.setImageDrawable(getItem(position).getGroup().picture);
         }
         holder.date.setText(getItem(position).getConv_date());
-        if (getItem(position).attachment.type.equals("album")) {
+        if (getItem(position).attachment!=null && getItem(position).attachment.type.equals("album")) {
             loader.loadImage(holder.picture, getItem(position).attachment.album.thumb.photo_75);
         }
-        if (getItem(position).attachment.type.equals("photo")) {
+        if (getItem(position).attachment!=null && getItem(position).attachment.type.equals("photo")) {
             loader.loadImage(holder.picture, getItem(position).attachment.photo.photo_75);
+        }
+        if (getItem(position).attachment!=null && getItem(position).attachment.type.equals("video")) {
+            loader.loadImage(holder.picture, getItem(position).attachment.video.photo_130);
         }
         holder.comments.setText(String.valueOf(getItem(position).getComments_count()));
         holder.likes.setText(String.valueOf(getItem(position).getLikes_count()));

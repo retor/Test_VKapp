@@ -14,6 +14,7 @@ public class Profile {
     private String sex;
     public String screen_name;
     public String photo_50;
+    public String photo_100;
     private  Boolean online;
 
     public Profile(){
@@ -28,6 +29,7 @@ public class Profile {
             out.sex = getGender(object.getInt("sex"));
             out.screen_name = object.getString("screen_name");
             out.photo_50 = object.getString("photo_50");
+            out.photo_100 = object.getString("photo_100");
             out.online = checkOnline(object.getInt("online"));
         } catch (JSONException e) {
             e.printStackTrace();
