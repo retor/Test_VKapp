@@ -25,16 +25,21 @@ public class NewsList extends Activity {
     ListAdapter adapter;
     NewsLoader newsLoader;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
         newsLoader = NewsLoader.instance(getApplicationContext());
-
-
         lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();
+
+        Button refresh = (Button)findViewById(R.id.refresh);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
         Button logout = (Button)findViewById(R.id.logout);
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,14 +68,27 @@ public class NewsList extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if ((totalItemCount-3)==firstVisibleItem){
-                    new TaskRequest().execute();
-                }
+                if ((totalItemCount-3)==firstVisibleItem) {
+                    TaskRequest task = new TaskRequest();
+                    task.execute();
+                }return;
             }
         });
     }
 
-
+    private void refresh(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                newski = new ArrayList<News>();
+                new TaskRequest().execute();
+                adapter.array.clear();
+                adapter.array.addAll(newski);
+                adapter.notifyDataSetChanged();
+                lv.invalidateViews();
+            }
+        });
+    }
 
     AsyncTask<Void, Void , Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
@@ -118,7 +136,7 @@ public class NewsList extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (newski.size()==0) {
+            if (newski.size()==0 || newski ==null) {
                 try {
                     newski = newsLoader.getNewsArray();
                 } catch (JSONException e) {
@@ -126,7 +144,8 @@ public class NewsList extends Activity {
                 }
             }else{
                 try {
-                    newski.addAll(newsLoader.getNewsArray());
+                    //adapter.addAll(newsLoader.getNewsArray());
+                    adapter.array.addAll(newsLoader.getNewsArray());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -138,15 +157,10 @@ public class NewsList extends Activity {
         protected void onPostExecute(Void aVoid) {
             if (adapter==null){
                 adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
+
                 lv.setAdapter(adapter);
             }else {
                 adapter.notifyDataSetChanged();
-                int i = lv.getLastVisiblePosition();
-                lv.setAdapter(adapter);
-                lv.deferNotifyDataSetChanged();
-                lv.setSelection(i);
-                //adapter.notifyDataSetInvalidated();
-
             }
             super.onPostExecute(aVoid);
         }

@@ -45,7 +45,7 @@ public class PicturesLoader {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            Log.d("Loader status", loader.getStatus().name());
+            Log.d("Loader status", loader.getStatus().name()+ " " +url);
         }
         imageView.setImageDrawable(tmp);
     }

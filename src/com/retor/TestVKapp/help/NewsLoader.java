@@ -49,7 +49,7 @@ public class NewsLoader {
         if (start_from==null){
             out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
         }else{
-            out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&start_from=" + start_from + "&v=" + Cons.API_V + "&access_token=" + token;
+            out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&start_from=" + start_from + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
         }
         return out;
     }
@@ -76,7 +76,9 @@ public class NewsLoader {
         }
         Log.d("JSON", object.toString());
         try {
-            start_from = object.getJSONObject("response").getString("next_from");
+            String tmp_start = object.getJSONObject("response").getString("next_from");
+            if (tmp_start!=null)
+            start_from = tmp_start;
         } catch (JSONException e) {
             e.printStackTrace();
         }

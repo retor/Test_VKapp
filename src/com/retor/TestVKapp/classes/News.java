@@ -64,6 +64,7 @@ public class News {
         }
         JSONArray attach_json=object.optJSONArray("attachments");
         if(attach_json==null) {
+            if (copy_history_json!=null)
             for (int i = 0; i < copy_history_json.length(); i++) {
                 try {
                     attach_json = ((JSONObject) copy_history_json.get(i)).getJSONArray("attachments");
