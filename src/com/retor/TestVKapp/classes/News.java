@@ -45,7 +45,7 @@ public class News {
             out.setText(object.getString("text"));
             out.setComments_count(object.getJSONObject("comments").getInt("count"));
             out.setLikes_count(object.getJSONObject("likes").getInt("count"));
-            if (object.getLong("signer_id")!=0)
+            if (object.optLong("signer_id")!=0)
                 out.signer_id = object.getInt("signer_id");
         } catch (JSONException e) {
             e.printStackTrace();

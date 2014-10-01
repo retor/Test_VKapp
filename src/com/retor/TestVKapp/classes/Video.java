@@ -35,7 +35,7 @@ public class Video {
             out.photo_320 = o.getString("photo_320");
             out.photo_640 = o.getString("photo_640");
             out.date = o.optLong("date");
-            out.post_id = o.getInt("post_id");
+            out.post_id = o.optInt("post_id");
             out.access_key = o.optString("access_key");
         } catch (JSONException e) {
             e.printStackTrace();

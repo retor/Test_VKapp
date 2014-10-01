@@ -30,11 +30,11 @@ public class Album {
             out_album.updated = object.getLong("updated");
             out_album.size = object.getInt("size");
             //create thumb
-            if (object.getJSONObject("thumb")!=null){
+            if (object.optJSONObject("thumb")!=null){
                 Thumb thum = Thumb.parse(object.getJSONObject("thumb"));
                 out_album.thumb = thum;
             }
-            if (object.getJSONObject("link")!=null){
+            if (object.optJSONObject("link")!=null){
                 Link link1 = Link.parse(object.getJSONObject("link"));
                 out_album.link = link1;
             }

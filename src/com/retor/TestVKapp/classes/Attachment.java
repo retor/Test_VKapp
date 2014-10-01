@@ -21,19 +21,19 @@ public class Attachment {
         for(int i = 0; i<array.length(); i++){
             try {
                 JSONObject att = (JSONObject) array.get(i);
-                if (att.getString("type").equals("album")){
+                if (att.optString("type").equals("album")){
                     out.type = att.getString("type");
                     out.album = Album.parse(((JSONObject) array.get(i)).getJSONObject("album"));
                 }
-                if (att.getString("type").equals("photo")){
+                if (att.optString("type").equals("photo")){
                     out.type = att.getString("type");
                     out.photo = Photo.parse(((JSONObject) array.get(i)).getJSONObject("photo"));
                 }
-                if (att.getString("type").equals("link")){
+                if (att.optString("type").equals("link")){
                     out.type = att.getString("type");
                     out.link = Link.parse(((JSONObject) array.get(i)).getJSONObject("link"));
                 }
-                if (att.getString("type").equals("video")){
+                if (att.optString("type").equals("video")){
                     out.type = att.getString("type");
                     out.video = Video.parse(((JSONObject) array.get(i)).getJSONObject("video"));
                 }
