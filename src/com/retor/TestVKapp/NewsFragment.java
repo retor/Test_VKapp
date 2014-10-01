@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,14 +44,21 @@ public class NewsFragment extends DialogFragment {
         LinearLayout ll = (LinearLayout)out_view.findViewById(R.id.ll);
         ViewGroup.LayoutParams linLayoutParam = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         PicturesLoader loader = PicturesLoader.instance(getActivity());
-        //Initial views
+        //Initial profile views
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMarginStart(20);
         LinearLayout layoutPerson = new LinearLayout(getActivity());
         layoutPerson.setOrientation(LinearLayout.HORIZONTAL);
         layoutPerson.setLayoutParams(linLayoutParam);
         ImageView personImage = new ImageView(getActivity());
-        personImage.setMinimumHeight(50);
-        personImage.setMinimumWidth(50);
         TextView personName = new TextView(getActivity());
+        TextView time = new TextView(getActivity());
+        personImage.setMinimumHeight(70);
+        personImage.setMinimumWidth(70);
+        personName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        personName.setLayoutParams(params);
+        time.setText(news.getConv_date().substring(0, 19));
+        time.setLayoutParams(params);
         if (news.profile!=null){
             loader.loadImage(personImage, news.profile.photo_50);
             personName.setText(news.profile.first_name + " " + news.profile.last_name);
@@ -59,30 +67,33 @@ public class NewsFragment extends DialogFragment {
             personName.setText(news.group.name);
         }
         layoutPerson.addView(personImage);
-        layoutPerson.addView(personName, linLayoutParam);
+        layoutPerson.addView(personName);
+        layoutPerson.addView(time);
         ll.addView(layoutPerson);
 
-
+        //init next LinerLayout for message
+        LinearLayout layoutMessage = new LinearLayout(getActivity());
+        layoutPerson.setOrientation(LinearLayout.HORIZONTAL);
+        TextView messageText = new TextView(getActivity());
+        ImageView messagePic = new ImageView(getActivity());
+        messagePic.setMinimumHeight(230);
+        messagePic.setMinimumWidth(230);
+        messageText.setLayoutParams(params);
+        if (news.attachment.type.equals("photo")){
+            loader.loadImage(messagePic, news.attachment.photo.photo_604);
+            layoutMessage.addView(messagePic);
+        }
         if (news.text!=null || news.copy_text!=null){
-            TextView textView = new TextView(getActivity());
             if (news.text!=null){
-                textView.setText(news.text);
+                messageText.setText(news.text);
             }else{
                 if (news.copy_text!=null)
-                    textView.setText(news.copy_text);
+                    messageText.setText(news.copy_text);
             }
-            if (textView.getText()!=null)
-                ll.addView(textView);
+            if (messageText.getText()!=null)
+                layoutMessage.addView(messageText);
         }
-
-        if (news.attachment.type.equals("album")){
-
-            for (int i=0; i<news.attachment.album.size; i++){
-                ImageView imageView = new ImageView(getActivity());
-                loader.loadImage(imageView, news.attachment.album.thumb.photo_130);
-                ll.addView(imageView, linLayoutParam);
-            }
-        }
+        ll.addView(layoutMessage);
         setCancelable(true);
         out_view.canScrollVertically(50);
         return out_view;
