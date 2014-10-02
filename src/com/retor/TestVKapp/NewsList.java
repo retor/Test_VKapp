@@ -5,14 +5,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.*;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
 import com.retor.TestVKapp.classes.News;
 import com.retor.TestVKapp.help.NewsLoader;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by retor on 11.09.2014.
@@ -21,18 +23,47 @@ public class NewsList extends Activity {
 
     private String TAG = "Request";
     ListView lv;
-    List<News> newski;
+    ArrayList<News> newski;
     ListAdapter adapter;
     NewsLoader newsLoader;
+    TaskRequest task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
         newsLoader = NewsLoader.instance(getApplicationContext());
-        lv = (ListView) findViewById(R.id.listView);
         newski = new ArrayList<News>();
+        initViews();
+        task = new TaskRequest();
+        task.execute(0);
 
+
+    }
+
+    private void initViews(){
+        lv = (ListView) findViewById(R.id.listView);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                NewsFragment newsFragment = new NewsFragment(getApplicationContext(), newski.get(position));
+                newsFragment.show(getFragmentManager(), newski.get(position).toString());
+            }
+        });
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if ((totalItemCount - 3) == firstVisibleItem) {
+                    TaskRequest task = new TaskRequest();
+                    task.execute(1);
+                }
+            }
+        });
         Button refresh = (Button)findViewById(R.id.refresh);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,116 +81,50 @@ public class NewsList extends Activity {
                 finish();
             }
         });
-
-        //asyncTask.execute();
-        new TaskRequest().execute();
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                NewsFragment newsFragment = new NewsFragment(getApplicationContext(), newski.get(position));
-                newsFragment.show(getFragmentManager(), newski.get(position).toString());
-            }
-        });
-        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if ((totalItemCount-3)==firstVisibleItem) {
-                    TaskRequest task = new TaskRequest();
-                    task.execute();
-                }return;
-            }
-        });
     }
 
     private void refresh(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                newski = new ArrayList<News>();
-                new TaskRequest().execute();
-                adapter.array.clear();
-                adapter.array.addAll(newski);
-                adapter.notifyDataSetChanged();
-                lv.invalidateViews();
-            }
-        });
+        newski = new ArrayList<News>();
+        task = new TaskRequest();
+        task.execute(0);
+        adapter.array.clear();
+        adapter.array.addAll(newski);
+        adapter.notifyDataSetChanged();
+        lv.invalidateViews();
     }
 
-    AsyncTask<Void, Void , Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+    private class TaskRequest extends AsyncTask<Integer, Integer, Integer>{
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (newski==null) {
+        protected Integer doInBackground(Integer... params) {
+            ArrayList<News> tmp=null;
+            if (params[0]==0) {
                 try {
-                    newski = newsLoader.getNewsArray();
+                    tmp = newsLoader.getNewsArray(params[0]);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else{
-                try {
-                    newski.addAll(newsLoader.getNewsArray());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                newski = tmp;
             }
-            return null;
+            if (params[0]==1){
+                try {
+                    tmp = newsLoader.getNewsArray(params[0]);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (tmp!=null)
+                adapter.array.addAll(tmp);
+            }
+            return params[0];
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            if (adapter==null){
+        protected void onPostExecute(Integer aVoid) {
+            if (aVoid==0) {
                 adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
                 lv.setAdapter(adapter);
-            }else {
-                adapter.notifyDataSetChanged();
-                adapter.notifyDataSetInvalidated();
             }
-            super.onPostExecute(aVoid);
-        }
-    };
-
-    private class TaskRequest extends AsyncTask<Void, Void , Void>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (newski.size()==0 || newski ==null) {
-                try {
-                    newski = newsLoader.getNewsArray();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                try {
-                    //adapter.addAll(newsLoader.getNewsArray());
-                    adapter.array.addAll(newsLoader.getNewsArray());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (adapter==null){
-                adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
-
-                lv.setAdapter(adapter);
-            }else {
+            if (aVoid==1){
                 adapter.notifyDataSetChanged();
             }
             super.onPostExecute(aVoid);
