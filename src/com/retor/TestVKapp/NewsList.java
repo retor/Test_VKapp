@@ -37,8 +37,6 @@ public class NewsList extends Activity {
         initViews();
         task = new TaskRequest();
         task.execute(0);
-
-
     }
 
     private void initViews(){
@@ -58,9 +56,11 @@ public class NewsList extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if ((totalItemCount - 3) == firstVisibleItem) {
-                    TaskRequest task = new TaskRequest();
-                    task.execute(1);
+                if (visibleItemCount > 0 && firstVisibleItem + visibleItemCount == totalItemCount-1) {
+                    if (newsLoader.isHAS_NEXT()){
+                        new TaskRequest().execute(1);
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             }
         });
@@ -113,7 +113,10 @@ public class NewsList extends Activity {
                     e.printStackTrace();
                 }
                 if (tmp!=null)
+                    newski.addAll(tmp);
                 adapter.array.addAll(tmp);
+/*                else
+                    newsLoader = null;*/
             }
             return params[0];
         }

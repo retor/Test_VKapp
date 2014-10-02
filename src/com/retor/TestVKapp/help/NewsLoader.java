@@ -25,13 +25,11 @@ public class NewsLoader{
     private static NewsLoader instance = null;
     private Context context;
     private String start_from;
-    private String prev_start_from;
     private long id;
     private String token;
-    private String url_request;
 
-    protected static int MODE_NEW_REFRESH=0;
-    protected static int MODE_NEXT_LOAD=1;
+    final static int MODE_NEW_REFRESH=0;
+    final static int MODE_NEXT_LOAD=1;
 
 
     protected NewsLoader(Context in){
@@ -39,7 +37,7 @@ public class NewsLoader{
         PrefWork prefWork = new PrefWork(context);
         token = prefWork.loadToken();
         id = prefWork.loadUserId();
-        url_request = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
+        //url_request = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
     }
 
     public static NewsLoader instance(Context context){
@@ -55,15 +53,17 @@ public class NewsLoader{
             out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
         }
         if (mode==MODE_NEXT_LOAD) {
-            if (start_from == null && prev_start_from == null) {
-                out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
-            }
-            if (start_from != null && prev_start_from == null) {
+            if (isHAS_NEXT()){
                 out = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&start_from=" + start_from + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
             }
-            if (start_from == null && prev_start_from != null) {
-                return null;
-            }
+        }
+        return out;
+    }
+
+    public boolean isHAS_NEXT(){
+        boolean out = false;
+        if (!start_from.isEmpty()) {
+            out = true;
         }
         return out;
     }
@@ -92,7 +92,6 @@ public class NewsLoader{
             try {
                 String tmp_start = object.getJSONObject("response").getString("next_from");
                 if (tmp_start != null) {
-                    prev_start_from = start_from;
                     start_from = tmp_start;
                 }
             } catch (JSONException e) {
@@ -100,13 +99,12 @@ public class NewsLoader{
             }
             return object;
         }
-        return null;
+        return object;
     }
 
     public ArrayList<News> getNewsArray(int mode) throws JSONException {
         JSONObject object=null;
-        String url=null;
-        url=createNewUrl(mode);
+        String url=createNewUrl(mode);
             try {
                 object = sendRequest(url);
             } catch (IOException e) {
@@ -115,31 +113,29 @@ public class NewsLoader{
         if (object!=null) {
             if (!checkError(object)) {
                 ArrayList<News> out = new ArrayList<News>();
-                if (object != null) {
-                    JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
-                    ArrayList<Profile> profiles = getProfArray(object.getJSONObject("response").getJSONArray("profiles"));
-                    ArrayList<Group> groups = getGroupArray(object.getJSONObject("response").getJSONArray("groups"));
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        News news = new News();
-                        news = news.parse((JSONObject) jsonArray.get(i));
-                        if (news.source_id > 0) {
-                            news.setProfile(getProf(profiles, news.getSource_id()));
-                        } else {
-                            news.setGroup(getGroup(groups, news.getSource_id()));
-                        }
-                        if (news.copy_owner_id != 0) {
-                            if (news.copy_owner_id > 0) {
-                                news.setProfile(getProf(profiles, news.copy_owner_id));
-                            } else {
-                                news.setGroup(getGroup(groups, news.copy_owner_id));
-                            }
-                        } else {
-                            if (news.signer_id != 0 && news.signer_id > 0) {
-                                news.setProfile(getProf(profiles, news.signer_id));
-                            }
-                        }
-                        out.add(news);
+                JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
+                ArrayList<Profile> profiles = getProfArray(object.getJSONObject("response").getJSONArray("profiles"));
+                ArrayList<Group> groups = getGroupArray(object.getJSONObject("response").getJSONArray("groups"));
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    News news = new News();
+                    news = news.parse((JSONObject) jsonArray.get(i));
+                    if (news.source_id > 0) {
+                       news.setProfile(getProf(profiles, news.getSource_id()));
+                    } else {
+                        news.setGroup(getGroup(groups, news.getSource_id()));
                     }
+                    if (news.copy_owner_id != 0) {
+                       if (news.copy_owner_id > 0) {
+                            news.setProfile(getProf(profiles, news.copy_owner_id));
+                       } else {
+                            news.setGroup(getGroup(groups, news.copy_owner_id));
+                       }
+                    } else {
+                        if (news.signer_id != 0 && news.signer_id > 0) {
+                                news.setProfile(getProf(profiles, news.signer_id));
+                        }
+                    }
+                    out.add(news);
                 }
                 return out;
             } else {
