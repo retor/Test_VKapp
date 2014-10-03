@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
+import com.retor.TestVKapp.R;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -19,9 +20,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Антон on 26.09.2014.
@@ -48,22 +46,16 @@ public class PicturesLoader {
     }
 
     public void loadImage(ImageView imageView, String url){
-        Bitmap tmp = null;
-        Loader loader = new Loader();
-        if (url!=null) {
-            Executor executor = Executors.newFixedThreadPool(1);
-            try {
-                tmp = loader.executeOnExecutor(executor, url).get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-            Log.d("Loader status", loader.getStatus().name()+ " " +url);
+        final String imageKey = url;
+        Bitmap bitmap = getBitmapFromMemCache(imageKey);
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            imageView.setImageResource(R.drawable.no_picture);
+            BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+            task.execute(url);
+            Log.d("Loader status", task.getStatus().name()+ " " +url);
         }
-        String key = url.toString();;
-
-        imageView.setImageBitmap(tmp);
     }
 
     public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
@@ -76,42 +68,16 @@ public class PicturesLoader {
         return (Bitmap)picturesCahche.get(key);
     }
 
-  /*  public void loadBitmap(String resId, ImageView imageView) {
-        final String imageKey = resId;
-
-        final Bitmap bitmap = getBitmapFromMemCache(imageKey);
-        if (bitmap != null) {
-            mImageView.setImageBitmap(bitmap);
-        } else {
-            mImageView.setImageResource(R.drawable.image_placeholder);
-            BitmapWorkerTask task = new BitmapWorkerTask(mImageView);
-            task.execute(resId);
-        }
-    }
-
-    class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
-
-        // Decode image in background.
-        @Override
-        protected Bitmap doInBackground(Integer... params) {
-            final Bitmap bitmap = BitmapFactory.decode decodeSampledBitmapFromResource(
-                    getResources(), params[0], 100, 100));
-            addBitmapToMemoryCache(String.valueOf(params[0]), bitmap);
-            return bitmap;
-        }
-
-    }*/
-
-    private class Loader extends AsyncTask<String, Bitmap, Bitmap>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+    class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView mImageView;
+        BitmapWorkerTask(ImageView imageView) {
+            mImageView = imageView;
         }
 
         @Override
         protected Bitmap doInBackground(String... params) {
             Log.d("LoaderPic", "started");
+
             Bitmap bit_out = null;
             HttpGet httpRequest = null;
             try {
@@ -133,13 +99,14 @@ public class PicturesLoader {
                 e.printStackTrace();
             }
             bit_out = BitmapFactory.decodeStream(instream);
-            addBitmapToMemoryCache(params[0],bit_out);
+            addBitmapToMemoryCache(params[0], bit_out);
             return bit_out;
         }
 
         @Override
-        protected void onPostExecute(Bitmap aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            mImageView.setImageBitmap(bitmap);
         }
     }
 }

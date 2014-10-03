@@ -27,6 +27,7 @@ public class NewsList extends Activity {
     ListAdapter adapter;
     NewsLoader newsLoader;
     TaskRequest task;
+    boolean stopScroll = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +58,10 @@ public class NewsList extends Activity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (visibleItemCount > 0 && firstVisibleItem + visibleItemCount == totalItemCount-1) {
-                    if (newsLoader.isHAS_NEXT()){
+                    if (newsLoader.isHAS_NEXT() && !stopScroll){
+                        stopScroll=true;
                         new TaskRequest().execute(1);
-                        adapter.notifyDataSetChanged();
+                       adapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -115,8 +117,6 @@ public class NewsList extends Activity {
                 if (tmp!=null)
                     newski.addAll(tmp);
                 adapter.array.addAll(tmp);
-/*                else
-                    newsLoader = null;*/
             }
             return params[0];
         }
@@ -126,9 +126,12 @@ public class NewsList extends Activity {
             if (aVoid==0) {
                 adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
                 lv.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                stopScroll = false;
             }
             if (aVoid==1){
                 adapter.notifyDataSetChanged();
+                stopScroll = false;
             }
             super.onPostExecute(aVoid);
         }
