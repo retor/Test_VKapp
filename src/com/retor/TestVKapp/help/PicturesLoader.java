@@ -27,7 +27,7 @@ import java.net.URL;
 public class PicturesLoader {
     private static PicturesLoader instance = null;
     Context context;
-    int cacheSize = 4 * 1024 * 1024;
+    int cacheSize = 8 * 1024 * 1024;
     LruCache picturesCahche;
 
     protected PicturesLoader(Context context){
@@ -58,6 +58,13 @@ public class PicturesLoader {
         }
     }
 
+    public void fillCache(String url){
+        ChacheFiller filler = new ChacheFiller();
+        Bitmap bitmap = getBitmapFromMemCache(url);
+        if (bitmap==null)
+        filler.execute(url);
+    }
+
     public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
         if (getBitmapFromMemCache(key) == null) {
             picturesCahche.put(key, bitmap);
@@ -66,6 +73,36 @@ public class PicturesLoader {
 
     public Bitmap getBitmapFromMemCache(String key) {
         return (Bitmap)picturesCahche.get(key);
+    }
+
+    class ChacheFiller extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            Bitmap bit_out = null;
+            HttpGet httpRequest = null;
+            try {
+                httpRequest = new HttpGet(new URL(params[0]).toURI());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = null;
+            InputStream instream=null;
+            try {
+                response = (HttpResponse) httpclient.execute(httpRequest);
+                HttpEntity entity = response.getEntity();
+                BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+                instream = bufHttpEntity.getContent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            bit_out = BitmapFactory.decodeStream(instream);
+            addBitmapToMemoryCache(params[0], bit_out);
+            return bit_out;
+        }
     }
 
     class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import com.retor.TestVKapp.classes.News;
 import com.retor.TestVKapp.help.NewsLoader;
+import com.retor.TestVKapp.help.PicturesLoader;
 import com.retor.TestVKapp.help.PrefWork;
 import org.json.JSONException;
 
@@ -28,12 +29,14 @@ public class NewsList extends Activity {
     NewsLoader newsLoader;
     TaskRequest task;
     boolean stopScroll = true;
+    PicturesLoader picloader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
         newsLoader = NewsLoader.instance(getApplicationContext());
+        picloader = PicturesLoader.instance(getApplicationContext());
         newski = new ArrayList<News>();
         initViews();
         task = new TaskRequest();
@@ -117,6 +120,23 @@ public class NewsList extends Activity {
                 if (tmp!=null)
                     newski.addAll(tmp);
                 adapter.array.addAll(tmp);
+            }
+
+            for (int i=0; i<newski.size();i++){
+                if (newski.get(i).profile!=null){
+                    picloader.fillCache(newski.get(i).getProfile().photo_50);
+                }else{
+                    picloader.fillCache(newski.get(i).getGroup().photo_50);
+                }
+                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("album")) {
+                    picloader.fillCache(newski.get(i).attachment.album.thumb.photo_75);
+                }
+                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("photo")) {
+                    picloader.fillCache(newski.get(i).attachment.photo.photo_75);
+                }
+                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("video")) {
+                    picloader.fillCache(newski.get(i).attachment.video.photo_130);
+                }
             }
             return params[0];
         }
