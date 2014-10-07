@@ -128,16 +128,10 @@ public class NewsLoader{
                 int error_code = finalObject1.getJSONObject("error").getInt("error_code");
                 switch (error_code){
                     case(5):
-                        new PrefWork(context).clearPref();
-                        parent.startActivity(new Intent(context, AuthWeb.class));
-                        parent.finish();
-                        instance = null;
+                        reAuth(context, parent);
                         break;
                     case(10):
-                        new PrefWork(context).clearPref();
-                        parent.startActivity(new Intent(context, AuthWeb.class));
-                        parent.finish();
-                        instance = null;
+                        reAuth(context, parent);
                         break;
                 }
             }
@@ -225,5 +219,16 @@ public class NewsLoader{
                 out.add(group);
             }
         return out;
+    }
+
+    private void reAuth(Context ic, Activity ia){
+        new PrefWork(ic).clearPref();
+        ia.startActivity(new Intent(ic, AuthWeb.class));
+        ia.finish();
+        clearLoader();
+    }
+
+    public void clearLoader(){
+        instance = null;
     }
 }

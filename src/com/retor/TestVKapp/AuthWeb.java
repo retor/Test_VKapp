@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
 
 public class AuthWeb extends Activity {
 
-    WebView wv;
+    private WebView wv;
     static String TAG = "WebAuth";
-    PrefWork prefWork;
+    private PrefWork prefWork;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +56,10 @@ public class AuthWeb extends Activity {
                 if(!url.contains("error=")){
                     String[] auth= parseRedirectUrl(url);
                     Intent intent=new Intent();
-                    intent.putExtra("token", auth[0]);
-                    intent.putExtra("user_id", Long.parseLong(auth[1]));
+/*                    intent.putExtra("token", auth[0]);
+                    intent.putExtra("user_id", Long.parseLong(auth[1]));*/
                     prefWork.savePref(Cons.PREF_NAME, auth[0], Long.parseLong(auth[1]));
                     Log.d("PrefSave", auth[0]+" "+auth[1]);
-                    //setResult(Activity.RESULT_OK, intent);
                     intent.setClass(this, NewsList.class);
                     startActivity(intent);
                     this.finish();

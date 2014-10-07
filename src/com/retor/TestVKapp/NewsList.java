@@ -23,13 +23,13 @@ import java.util.ArrayList;
 public class NewsList extends Activity {
 
     private String TAG = "Request";
-    ListView lv;
-    ArrayList<News> newski;
-    ListAdapter adapter;
-    NewsLoader newsLoader;
-    TaskRequest task;
-    boolean stopScroll = true;
-    PicturesLoader picloader;
+    private ListView lv;
+    private ArrayList<News> newski;
+    private ListAdapter adapter;
+    private NewsLoader newsLoader;
+    private TaskRequest task;
+    private boolean stopScroll = true;
+    private PicturesLoader picloader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +82,7 @@ public class NewsList extends Activity {
             public void onClick(View v) {
                 android.webkit.CookieManager.getInstance().removeAllCookie();
                 new PrefWork(getApplicationContext()).clearPref();
+                newsLoader.clearLoader();
                 startActivity(new Intent(getApplicationContext(), AuthWeb.class));
                 finish();
             }
