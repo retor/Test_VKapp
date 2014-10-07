@@ -35,7 +35,7 @@ public class NewsList extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newslist);
-        newsLoader = NewsLoader.instance(getApplicationContext());
+        newsLoader = NewsLoader.instance(getApplicationContext(), this);
         picloader = PicturesLoader.instance(getApplicationContext());
         newski = new ArrayList<News>();
         initViews();
@@ -121,21 +121,22 @@ public class NewsList extends Activity {
                     newski.addAll(tmp);
                 adapter.array.addAll(tmp);
             }
-
-            for (int i=0; i<newski.size();i++){
-                if (newski.get(i).profile!=null){
-                    picloader.fillCache(newski.get(i).getProfile().photo_50);
-                }else{
-                    picloader.fillCache(newski.get(i).getGroup().photo_50);
-                }
-                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("album")) {
-                    picloader.fillCache(newski.get(i).attachment.album.thumb.photo_75);
-                }
-                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("photo")) {
-                    picloader.fillCache(newski.get(i).attachment.photo.photo_75);
-                }
-                if (newski.get(i).attachment!=null && newski.get(i).attachment.type.equals("video")) {
-                    picloader.fillCache(newski.get(i).attachment.video.photo_130);
+            if(newski!=null && newski.size()!=0) {
+                for (int i = 0; i < newski.size(); i++) {
+                    if (newski.get(i).profile != null) {
+                        picloader.fillCache(newski.get(i).getProfile().photo_50);
+                    } else {
+                        picloader.fillCache(newski.get(i).getGroup().photo_50);
+                    }
+                    if (newski.get(i).attachment != null && newski.get(i).attachment.type.equals("album")) {
+                        picloader.fillCache(newski.get(i).attachment.album.thumb.photo_75);
+                    }
+                    if (newski.get(i).attachment != null && newski.get(i).attachment.type.equals("photo")) {
+                        picloader.fillCache(newski.get(i).attachment.photo.photo_75);
+                    }
+                    if (newski.get(i).attachment != null && newski.get(i).attachment.type.equals("video")) {
+                        picloader.fillCache(newski.get(i).attachment.video.photo_130);
+                    }
                 }
             }
             return params[0];
@@ -143,15 +144,17 @@ public class NewsList extends Activity {
 
         @Override
         protected void onPostExecute(Integer aVoid) {
-            if (aVoid==0) {
-                adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
-                lv.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
-                stopScroll = false;
-            }
-            if (aVoid==1){
-                adapter.notifyDataSetChanged();
-                stopScroll = false;
+            if (newski!=null && newski.size()!=0) {
+                if (aVoid == 0) {
+                    adapter = new ListAdapter(getApplicationContext(), newski, R.layout.list_item);
+                    lv.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                    stopScroll = false;
+                }
+                if (aVoid == 1) {
+                    adapter.notifyDataSetChanged();
+                    stopScroll = false;
+                }
             }
             super.onPostExecute(aVoid);
         }

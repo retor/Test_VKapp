@@ -24,7 +24,6 @@ public class AuthWeb extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authweb);
         prefWork = new PrefWork(getApplicationContext());
-        //prefWork.clearPref();
         if (getSharedPreferences(Cons.PREF_NAME, MODE_MULTI_PROCESS).getString(Cons.TOKEN_PREF, null)!=null){
             Intent intent = new Intent(getApplicationContext(), NewsList.class);
             startActivity(intent);
@@ -61,7 +60,7 @@ public class AuthWeb extends Activity {
                     intent.putExtra("user_id", Long.parseLong(auth[1]));
                     prefWork.savePref(Cons.PREF_NAME, auth[0], Long.parseLong(auth[1]));
                     Log.d("PrefSave", auth[0]+" "+auth[1]);
-                    setResult(Activity.RESULT_OK, intent);
+                    //setResult(Activity.RESULT_OK, intent);
                     intent.setClass(this, NewsList.class);
                     startActivity(intent);
                     this.finish();

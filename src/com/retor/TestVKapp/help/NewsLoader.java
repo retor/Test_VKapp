@@ -1,8 +1,10 @@
 package com.retor.TestVKapp.help;
 
+import android.app.Activity;
 import android.content.*;
 import android.util.Log;
 import android.widget.Toast;
+import com.retor.TestVKapp.AuthWeb;
 import com.retor.TestVKapp.classes.Group;
 import com.retor.TestVKapp.classes.News;
 import com.retor.TestVKapp.classes.Profile;
@@ -27,22 +29,24 @@ public class NewsLoader{
     private String start_from;
     private long id;
     private String token;
+    private Activity parent;
 
     final static int MODE_NEW_REFRESH=0;
     final static int MODE_NEXT_LOAD=1;
 
 
-    protected NewsLoader(Context in){
+    protected NewsLoader(Context in, Activity activity){
         context = in;
         PrefWork prefWork = new PrefWork(context);
         token = prefWork.loadToken();
         id = prefWork.loadUserId();
+        parent = activity;
         //url_request = "https://api.vk.com/method/newsfeed.get?user_id=" + id + "&filters=post" + "&count=5" + "&v=" + Cons.API_V + "&access_token=" + token;
     }
 
-    public static NewsLoader instance(Context context){
+    public static NewsLoader instance(Context context, Activity activity){
         if (instance==null){
-            instance = new NewsLoader(context);
+            instance = new NewsLoader(context, activity);
         }
         return instance;
     }
@@ -89,15 +93,12 @@ public class NewsLoader{
                     reader.close();
             }
             Log.d("JSON", object.toString());
-            try {
-                String tmp_start = object.getJSONObject("response").getString("next_from");
+            if (object.optJSONObject("response")!=null) {
+                String tmp_start = object.optJSONObject("response").optString("next_from");
                 if (tmp_start != null) {
                     start_from = tmp_start;
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-            return object;
         }
         return object;
     }
@@ -110,9 +111,37 @@ public class NewsLoader{
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        ArrayList<News> out = new ArrayList<News>();
         if (object!=null) {
-            if (!checkError(object)) {
-                ArrayList<News> out = new ArrayList<News>();
+            if (object.isNull("response") && !object.isNull("error")){
+                final JSONObject finalObject1 = object;
+                parent.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Toast.makeText(parent.getApplicationContext(), finalObject1.getJSONObject("error").getString("error_msg"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                int error_code = finalObject1.getJSONObject("error").getInt("error_code");
+                switch (error_code){
+                    case(5):
+                        new PrefWork(context).clearPref();
+                        parent.startActivity(new Intent(context, AuthWeb.class));
+                        parent.finish();
+                        instance = null;
+                        break;
+                    case(10):
+                        new PrefWork(context).clearPref();
+                        parent.startActivity(new Intent(context, AuthWeb.class));
+                        parent.finish();
+                        instance = null;
+                        break;
+                }
+            }
+            if (!object.isNull("response")){
                 JSONArray jsonArray = object.getJSONObject("response").getJSONArray("items");
                 ArrayList<Profile> profiles = getProfArray(object.getJSONObject("response").getJSONArray("profiles"));
                 ArrayList<Group> groups = getGroupArray(object.getJSONObject("response").getJSONArray("groups"));
@@ -120,33 +149,31 @@ public class NewsLoader{
                     News news = new News();
                     news = news.parse((JSONObject) jsonArray.get(i));
                     if (news.source_id > 0) {
-                       news.setProfile(getProf(profiles, news.getSource_id()));
+                        news.setProfile(getProf(profiles, news.getSource_id()));
                     } else {
                         news.setGroup(getGroup(groups, news.getSource_id()));
                     }
                     if (news.copy_owner_id != 0) {
-                       if (news.copy_owner_id > 0) {
+                        if (news.copy_owner_id > 0) {
                             news.setProfile(getProf(profiles, news.copy_owner_id));
-                       } else {
+                        } else {
                             news.setGroup(getGroup(groups, news.copy_owner_id));
-                       }
+                        }
                     } else {
                         if (news.signer_id != 0 && news.signer_id > 0) {
-                                news.setProfile(getProf(profiles, news.signer_id));
+                            news.setProfile(getProf(profiles, news.signer_id));
                         }
                     }
                     out.add(news);
                 }
                 return out;
-            } else {
-                Toast.makeText(context, object.optString("error_msg"), Toast.LENGTH_SHORT).show();
             }
         }
-        return null;
+        return out;
     }
 
     private boolean checkError(JSONObject o){
-        if (o.has("error")) {
+        if (o.optJSONObject("error").has("error_msg")) {
             return true;
         }
         return false;
